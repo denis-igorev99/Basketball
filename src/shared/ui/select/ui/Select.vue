@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ICheckboxProps } from "@/shared/ui/checkbox/interface";
 import { ErrorText, SelectItemModel } from "@/shared";
 import { computed, onMounted, PropType, ref, useAttrs } from "vue";
 import { ISelectProps } from "@/shared/ui/select/interface";
@@ -8,7 +7,7 @@ import ExpandIcon from "@/shared/assets/img/icons/expand_more_24.svg";
 import CloseIcon from "@/shared/assets/img/icons/close.svg";
 import CloseGrayIcon from "@/shared/assets/img/icons/close_gray.svg";
 
-withDefaults(defineProps<ISelectProps>(), {
+const props = withDefaults(defineProps<ISelectProps>(), {
   modelValue: null,
   selectColor: "gray",
   multiple: false,
@@ -22,19 +21,19 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: number | number[]): void;
 }>();
 
-const attrs = useAttrs();
+// const attrs = useAttrs();
 
 /**
  * * Выбранная опция
  */
 const selectedOption = computed(() => {
-  if (attrs.multiple)
-    return (attrs.options as SelectItemModel[]).filter((x) =>
-      (attrs.modelValue as number[])?.includes(x.Id)
+  if (props.multiple)
+    return (props.options as SelectItemModel[]).filter((x) =>
+      (props.modelValue as number[])?.includes(x.Id)
     );
 
-  return (attrs.options as SelectItemModel[]).find(
-    (x) => x.Id == attrs.modelValue
+  return (props.options as SelectItemModel[]).find(
+    (x) => x.Id == props.modelValue
   );
 });
 
@@ -71,14 +70,14 @@ const onUpdateModelValue = (value: SelectItemModel | SelectItemModel[]) => {
  */
 const deleteItem = (id?: number) => {
   if (!id) {
-    emit("update:modelValue", attrs.multiple ? [] : null);
+    emit("update:modelValue", props.multiple ? [] : null);
     hiddenOptionsCount.value = 0;
     return;
   }
 
   emit(
     "update:modelValue",
-    (attrs.modelValue as number[]).filter((x) => x != id)
+    (props.modelValue as number[]).filter((x) => x != id)
   );
 
   recalcHiddenOptionsDebounce();
@@ -99,8 +98,8 @@ const recalcHiddenOptions = () => {
 
   const parentWidth = parentContainer.offsetWidth;
   
-  const children = (attrs.options as SelectItemModel[])
-    .filter((x) => (attrs.modelValue as number[])?.includes(x.Id))
+  const children = (props.options as SelectItemModel[])
+    .filter((x) => (props.modelValue as number[])?.includes(x.Id))
     .map((x) => x.Value);
 
   let totalWidth = 25;
@@ -146,7 +145,7 @@ const selectedWrapper = ref();
       class="ui-select-block"
       :class="[
         selectColor,
-        { multiple: attrs.multiple },
+        { multiple: multiple },
         { clearing: selectedOption?.Id || selectedOption?.length },
       ]"
     >
@@ -154,9 +153,9 @@ const selectedWrapper = ref();
         class="ui-select"
         v-model="value"
         :model-value="selectedOption"
-        :options="attrs.options"
+        :options="options"
         placeholder="Select..."
-        :multiple="attrs.multiple"
+        :multiple="multiple"
         label="Value"
         track-by="Id"
         @update:model-value="onUpdateModelValue"
@@ -176,7 +175,7 @@ const selectedWrapper = ref();
             <img :src="ExpandIcon" alt="Expand" width="16" height="16" />
           </div>
         </template>
-        <template #selection v-if="attrs.multiple">
+        <template #selection v-if="multiple">
           <div
             class="select-multiple-wrap"
             ref="selectMultipleRef"

@@ -5,3 +5,4 @@ export * from "./button";
 export * from "./checkbox";
 export * from "./link";
 export * from "./select"
+export * from "./pagination"

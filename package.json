@@ -9,11 +9,14 @@
     "dependencies": {
         "@vueuse/core": "^10.1.2",
         "core-js": "^3.30.2",
+        "i": "^0.3.7",
         "moment": "^2.29.4",
+        "npm": "^10.2.5",
         "pinia": "2.0.36",
         "sass": "^1.62.1",
         "sass-loader": "^13.2.2",
         "vue": "3.3.2",
+        "vue-awesome-paginate": "^1.1.46",
         "vue-multiselect": "^3.0.0-beta.3",
         "vue-router": "4.2.0"
     },

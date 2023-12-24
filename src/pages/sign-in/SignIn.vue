@@ -6,6 +6,7 @@ import {
   Checkbox,
   Link,
   Select,
+  Pagination,
   SelectItemModel,
 } from "@/shared";
 import { onMounted, ref } from "vue";
@@ -38,15 +39,15 @@ const options = [
 ];
 
 const mass = ref<number[]>([]);
-const val = ref<number[]>([]);
+const val = ref<number>(1);
 </script>
 
 <template>
   <div style="padding: 16px">
     Sign In
     {{ modelV }}
-
-    <Select v-model="mass" :multiple="true"  :options="options" />
+    <Pagination v-model:page="val" :count="72" :size="10" :page="1" />
+    <!-- <Select v-model="mass" :multiple="true" :options="options" />
     <Select v-model="val" selectColor="light" :options="options" />
 
     <Input v-model="modelV" inputLabel="Login" error="Поле обязательно" />
@@ -57,7 +58,7 @@ const val = ref<number[]>([]);
 
     <Checkbox v-model="modelVal" disabled>Text</Checkbox>
 
-    <Link href="https://translate.google.com/" target="_blank">Моя ссылка</Link>
+    <Link href="https://translate.google.com/" target="_blank">Моя ссылка</Link> -->
 
     <!-- <Select selectColor="light" /> -->
   </div>

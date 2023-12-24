@@ -57,6 +57,7 @@ const value = computed({
     outline: none;
     color: $dark-gray;
     min-height: 40px;
+    transition: all 0.15s ease-in;
 
     &:hover {
       background: $lightest-gray;
@@ -75,6 +76,7 @@ const value = computed({
 
     &::placeholder {
       color: $gray;
+      font-size: 14px;
     }
   }
 

@@ -1,5 +1,19 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { Input, Search } from "@/shared";
+import { onMounted, ref } from "vue";
 
-<template>Sign In</template>
+const modelV = ref("");
+</script>
+
+<template>
+  Sign In
+  {{ modelV }}
+  <Input
+    v-model="modelV"
+    inputLabel="Login"
+    error="Поле обязательно"
+  />
+  <Search v-model="modelV" placeholder="Search..." />
+</template>
 
 <style lang="scss"></style>

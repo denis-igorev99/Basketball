@@ -4,5 +4,8 @@ export * from "./error";
 export * from "./button";
 export * from "./checkbox";
 export * from "./link";
-export * from "./select"
-export * from "./pagination"
+export * from "./select";
+export * from "./pagination";
+export * from "./avatar";
+export * from "./logo";
+export * from "./icon-text";

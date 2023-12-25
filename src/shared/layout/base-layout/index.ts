@@ -1,1 +1,1 @@
-export { default as BaseLayout } from "./base-layout.vue";
+export { default as BaseLayout } from "./BaseLayout.vue";

@@ -1,1 +1,1 @@
-export { default as Headerbar } from "./headerbar.vue";
+export { default as Headerbar } from "./Headerbar.vue";

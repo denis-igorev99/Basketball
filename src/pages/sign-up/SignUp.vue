@@ -1,5 +1,16 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { AuthWrap } from "@/shared";
+import { SignUpForm } from "@/features";
+import SignUpPreview from "@/shared/assets/img/sign-up-preview.svg";
+</script>
 
-<template>Sign Up</template>
+<template>
+  <AuthWrap>
+    <SignUpForm />
+    <template #image>
+      <img :src="SignUpPreview" alt="Auth" />
+    </template>
+  </AuthWrap>
+</template>
 
 <style lang="scss"></style>

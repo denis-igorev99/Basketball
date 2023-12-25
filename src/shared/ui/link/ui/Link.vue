@@ -17,19 +17,23 @@ const checkClick = (e: Event) => {
 </script>
 
 <template>
-  <a
+  <!-- <a
     class="ui-link"
     :class="{ disabled: disabled }"
     v-bind="$attrs"
     @click="checkClick"
     ><slot
-  /></a>
+  /></a> -->
+  <RouterLink  class="ui-link" :to="{ name: routerName }" v-bind="$attrs" @click="checkClick">
+    <slot />
+  </RouterLink>
 </template>
 
 <style lang="scss" scoped>
 .ui-link {
   color: $red;
   text-decoration: underline;
+  cursor: pointer;
 
   &:not(.disabled):hover {
     text-decoration: none;

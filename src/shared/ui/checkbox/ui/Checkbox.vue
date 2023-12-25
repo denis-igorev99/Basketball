@@ -29,7 +29,7 @@ const value = computed({
   <div class="ui-checkboc-wrap">
     <label
       class="ui-checkbox"
-      :class="[{ disabled: disabled }, { error: !!error }]"
+      :class="[{ disabled: disabled }, { error: isError }]"
     >
       <input v-model="value" type="checkbox" :disabled="disabled" />
       <slot />

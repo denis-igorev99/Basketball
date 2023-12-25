@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { computed, InputHTMLAttributes, onMounted, ref } from "vue";
+import { computed, InputHTMLAttributes, onMounted, ref, useAttrs } from "vue";
 import { IInputProps } from "@/shared/ui/input/interface";
 import { ErrorText } from "@/shared";
+import Eye from "@/shared/assets/img/icons/eye.svg";
+import CloseEye from "@/shared/assets/img/icons/close_eye.svg";
 
 const props = withDefaults(defineProps<IInputProps>(), {
   inputLabel: "",
@@ -24,6 +26,26 @@ const value = computed({
     emit("update:modelValue", value);
   },
 });
+
+const attrs = useAttrs();
+
+/**
+ * * Поле для пароля
+ */
+const isPassword = attrs.type == "password";
+
+/**
+ * * Тип поля
+ */
+const innerType = ref<string>(attrs.type as string);
+
+/**
+ * * Изменить состояние видимости пароля
+ */
+const changedViewPassword = () => {
+  innerType.value = innerType.value == "password" ? "text" : "password";
+  console.log("innerType.value ", innerType.value);
+};
 </script>
 
 <template>
@@ -31,7 +53,22 @@ const value = computed({
     <div class="title">
       {{ inputLabel }}
     </div>
-    <input class="ui-input" v-model="value" v-bind="$attrs" />
+    <input
+      class="ui-input"
+      :class="{ password: isPassword }"
+      v-model="value"
+      v-bind="$attrs"
+      :type="innerType"
+    />
+    <img
+      v-if="isPassword"
+      class="password-eye"
+      :src="innerType == 'password' ? CloseEye : Eye"
+      alt="Password"
+      width="16"
+      height="16"
+      @click="changedViewPassword"
+    />
     <ErrorText>{{ error }}</ErrorText>
   </div>
 </template>
@@ -42,10 +79,18 @@ const value = computed({
   font-style: normal;
   font-weight: 500;
   line-height: 16px;
+  width: 100%;
+  position: relative;
 
   .title {
     color: $gray;
     margin-bottom: 8px;
+  }
+
+  .password-eye {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
   }
 
   .ui-input {
@@ -77,6 +122,10 @@ const value = computed({
     &::placeholder {
       color: $gray;
       font-size: 14px;
+    }
+
+    &.password {
+      padding-right: 40px;
     }
   }
 

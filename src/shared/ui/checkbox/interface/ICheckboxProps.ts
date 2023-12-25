@@ -11,7 +11,7 @@ export interface ICheckboxProps {
    */
   disabled?: boolean;
   /**
-   * * Ошибка
+   * * Выделить красным цветом
    */
-  error?: string;
+  isError?: boolean;
 }

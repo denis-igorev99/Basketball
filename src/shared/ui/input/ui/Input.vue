@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, InputHTMLAttributes, onMounted, ref, useAttrs } from "vue";
+import { computed, InputHTMLAttributes, onMounted, ref, useAttrs, useSlots } from "vue";
 import { IInputProps } from "@/shared/ui/input/interface";
 import { ErrorText } from "@/shared";
 import Eye from "@/shared/assets/img/icons/eye.svg";
@@ -27,6 +27,17 @@ const value = computed({
   },
 });
 
+/**
+ * * Настройка над слотом
+ */
+const slots = useSlots();
+/**
+ * * Заполнен ли слот
+ */
+const hasSlot = (name: string) => {
+  return !!slots[name];
+};
+
 const attrs = useAttrs();
 
 /**
@@ -50,7 +61,7 @@ const changedViewPassword = () => {
 
 <template>
   <div class="ui-input-wrap" :class="{ 'show-error': !!error }">
-    <div class="title">
+    <div class="title" v-if="hasSlot('title')">
       {{ inputLabel }}
     </div>
     <input

@@ -1,5 +1,9 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { PlayerList } from "@/features";
+</script>
 
-<template>Players</template>
+<template>
+  <PlayerList />
+</template>
 
 <style lang="scss"></style>

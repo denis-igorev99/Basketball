@@ -158,12 +158,13 @@ const selectedWrapper = ref();
         :multiple="multiple"
         label="Value"
         track-by="Id"
+        :searchable="false"
         @update:model-value="onUpdateModelValue"
       >
         <template #caret>
           <div class="custom-expand">
             <img
-              v-if="selectedOption?.Id || selectedOption?.length"
+              v-if="selectedOption?.length"
               :src="CloseGrayIcon"
               alt="Close"
               width="16"

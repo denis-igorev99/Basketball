@@ -71,6 +71,7 @@ const value = computed({
 
 <style lang="scss">
 .pagination-container {
+  padding: 0;
   &.ui-pagination {
     display: flex;
     column-gap: 16px;
@@ -90,6 +91,15 @@ const value = computed({
       &.active-page {
         background-color: $red;
         color: $white;
+      }
+    }
+
+    @include media("<desktop") {
+      column-gap: 8px;
+      .paginate-buttons {
+        min-width: 28px;
+        width: 28px;
+        height: 28px;
       }
     }
   }

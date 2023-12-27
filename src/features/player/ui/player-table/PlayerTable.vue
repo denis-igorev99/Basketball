@@ -86,7 +86,7 @@ onMounted(async () => {
     .tr,
     .header {
       display: grid;
-      grid-template-columns: 40px auto 70px 70px 60px;
+      grid-template-columns: 40px auto 70px 70px 28px;
     }
 
     .header {
@@ -134,7 +134,7 @@ onMounted(async () => {
       .tr,
       .header {
         display: grid;
-        grid-template-columns: 56px 1fr 130px 130px 60px;
+        grid-template-columns: 56px 1fr 130px 130px 28px;
       }
 
       .header {

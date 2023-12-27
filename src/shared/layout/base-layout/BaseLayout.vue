@@ -35,6 +35,7 @@ import { Headerbar, Sidebar } from "@/shared";
       flex-direction: column;
       flex-grow: 1;
       background: $superlight-gray;
+      width: 100%;
 
       @include media(">tablet") {
         padding: 32px;

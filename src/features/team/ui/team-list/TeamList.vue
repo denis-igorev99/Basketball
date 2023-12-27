@@ -43,6 +43,8 @@ async function getTeams() {
         :imgUrl="item.ImageUrl"
         :text="item.Name"
         :description="`Year of foundation: ${item.FoundationYear}`"
+        :details-id="item.Id"
+        :details-router-name="'team-details'"
       ></InfoCard>
     </template>
     <template #empty-search>

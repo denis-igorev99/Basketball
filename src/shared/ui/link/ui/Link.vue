@@ -17,16 +17,16 @@ const checkClick = (e: Event) => {
 </script>
 
 <template>
-  <!-- <a
+  <RouterLink
+    v-if="routerName"
     class="ui-link"
-    :class="{ disabled: disabled }"
+    :to="{ name: routerName }"
     v-bind="$attrs"
     @click="checkClick"
-    ><slot
-  /></a> -->
-  <RouterLink  class="ui-link" :to="{ name: routerName }" v-bind="$attrs" @click="checkClick">
+  >
     <slot />
   </RouterLink>
+  <span class="router-link" v-else><slot /></span>
 </template>
 
 <style lang="scss" scoped>
@@ -34,7 +34,6 @@ const checkClick = (e: Event) => {
   color: $red;
   text-decoration: underline;
   cursor: pointer;
-
   &:not(.disabled):hover {
     text-decoration: none;
   }
@@ -43,5 +42,11 @@ const checkClick = (e: Event) => {
     color: $lightest-gray;
     cursor: no-drop;
   }
+}
+
+.router-link {
+  color: $red;
+  font-size: 14px;
+  line-height: 24px;
 }
 </style>

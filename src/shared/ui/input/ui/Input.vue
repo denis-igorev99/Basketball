@@ -114,6 +114,7 @@ const changedViewPassword = () => {
     color: $dark-gray;
     min-height: 40px;
     transition: all 0.15s ease-in;
+    font-family: inherit;
 
     &:hover {
       background: $lightest-gray;

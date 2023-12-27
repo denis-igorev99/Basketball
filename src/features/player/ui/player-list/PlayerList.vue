@@ -47,6 +47,8 @@ async function getPlayers() {
         :imgUrl="item.AvatarUrl"
         :text="item.Name"
         :description="item.Team"
+        :details-id="item.Id"
+        :details-router-name="'player-details'"
       >
         <template #after-title>#{{ item.Number }}</template>
       </InfoCard>

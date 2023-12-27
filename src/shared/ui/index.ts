@@ -11,3 +11,6 @@ export * from "./logo";
 export * from "./icon-text";
 export * from "./info-card";
 export * from "./empty-search";
+export * from "./edit-delete";
+export * from "./details-block";
+export * from "./bread-crumbs"

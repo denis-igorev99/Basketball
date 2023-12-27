@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useRouter } from "vue-router";
+
 const props = defineProps({
   /**
    * * Текст
@@ -16,11 +18,37 @@ const props = defineProps({
    * * Изображение
    */
   imgUrl: { type: String },
+  /**
+   * * Идентификатор сущности для детальной информации
+   */
+  detailsId: { type: Number },
+  /**
+   * * Маршрут детальной страницы
+   */
+  detailsRouterName: {
+    type: String,
+  },
 });
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+
+/**
+ * * Перейти на детальную страницу
+ */
+const goToDetails = () => {
+  if (props.detailsRouterName)
+    router.push({
+      name: props.detailsRouterName,
+      params: { id: props.detailsId },
+    });
+};
 </script>
 
 <template>
-  <div class="info-card">
+  <div class="info-card" @click="goToDetails">
     <div class="content">
       <div class="preview">
         <img :src="imgUrl" alt="Avatar" />
@@ -42,6 +70,7 @@ const props = defineProps({
   border-radius: 4px;
   aspect-ratio: 0.84;
   overflow: hidden;
+  cursor: pointer;
 
   .content {
     display: flex;

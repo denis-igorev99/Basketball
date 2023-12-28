@@ -92,7 +92,7 @@ const goToDetails = () => {
         max-height: 100%;
       }
 
-      @include media(">tablet") {
+      @include media(">=tablet") {
         max-width: 150px;
         max-height: 150px;
       }
@@ -116,7 +116,7 @@ const goToDetails = () => {
         color: $light-red;
       }
 
-      @include media(">tablet") {
+      @include media(">=tablet") {
         font-size: 18px;
       }
     }
@@ -127,17 +127,17 @@ const goToDetails = () => {
       color: $light-gray;
       text-align: center;
 
-      @include media(">tablet") {
+      @include media(">=tablet") {
         font-size: 14px;
       }
     }
 
-    @include media(">tablet") {
+    @include media(">=tablet") {
       row-gap: 12px;
     }
   }
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     aspect-ratio: 0.94;
   }
 
@@ -152,7 +152,7 @@ const goToDetails = () => {
         padding: 0 24px;
         max-width: none;
         max-height: none;
-        @include media(">tablet") {
+        @include media(">=tablet") {
           padding: 0 45px;
         }
       }

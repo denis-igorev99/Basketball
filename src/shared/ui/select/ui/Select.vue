@@ -11,6 +11,9 @@ const props = withDefaults(defineProps<ISelectProps>(), {
   modelValue: null,
   selectColor: "gray",
   multiple: false,
+  selectLabel: "",
+  error: "",
+  isClear: false,
   options: () => [],
 });
 
@@ -18,7 +21,7 @@ const emit = defineEmits<{
   /**
    * * Обновление значения
    */
-  (e: "update:modelValue", value: number | number[]): void;
+  (e: "update:modelValue", value: number | string | number[]): void;
 }>();
 
 // const attrs = useAttrs();
@@ -29,7 +32,7 @@ const emit = defineEmits<{
 const selectedOption = computed(() => {
   if (props.multiple)
     return (props.options as SelectItemModel[]).filter((x) =>
-      (props.modelValue as number[])?.includes(x.Id)
+      (props.modelValue as [])?.includes(x.Id)
     );
 
   return (props.options as SelectItemModel[]).find(
@@ -68,7 +71,9 @@ const onUpdateModelValue = (value: SelectItemModel | SelectItemModel[]) => {
 /**
  * * Удалить элемент
  */
-const deleteItem = (id?: number) => {
+const deleteItem = (id?: number | string) => {
+  console.log("deleteItem", id);
+
   if (!id) {
     emit("update:modelValue", props.multiple ? [] : null);
     hiddenOptionsCount.value = 0;
@@ -77,7 +82,7 @@ const deleteItem = (id?: number) => {
 
   emit(
     "update:modelValue",
-    (props.modelValue as number[]).filter((x) => x != id)
+    (props.modelValue as []).filter((x) => x != id)
   );
 
   recalcHiddenOptionsDebounce();
@@ -97,9 +102,9 @@ const recalcHiddenOptions = () => {
   if (!parentContainer) return;
 
   const parentWidth = parentContainer.offsetWidth;
-  
+
   const children = (props.options as SelectItemModel[])
-    .filter((x) => (props.modelValue as number[])?.includes(x.Id))
+    .filter((x) => (props.modelValue as [])?.includes(x.Id))
     .map((x) => x.Value);
 
   let totalWidth = 25;
@@ -141,6 +146,10 @@ const selectedWrapper = ref();
 
 <template>
   <div class="ui-select-wrap">
+    <div class="title" v-if="selectLabel">
+      {{ selectLabel }}
+    </div>
+
     <div
       class="ui-select-block"
       :class="[
@@ -164,13 +173,13 @@ const selectedWrapper = ref();
         <template #caret>
           <div class="custom-expand">
             <img
-              v-if="selectedOption?.length"
+              v-if="selectedOption?.length || isClear && !multiple"
               :src="CloseGrayIcon"
               alt="Close"
               width="16"
               height="16"
               class="cs-p"
-              @click="deleteItem()"
+              @click.stop="deleteItem()"
             />
             <div></div>
             <img :src="ExpandIcon" alt="Expand" width="16" height="16" />
@@ -204,6 +213,8 @@ const selectedWrapper = ref();
         </template>
       </VueMultiselect>
     </div>
+
+    <ErrorText>{{ error }}</ErrorText>
   </div>
 </template>
 
@@ -211,6 +222,12 @@ const selectedWrapper = ref();
 <style lang="scss">
 .ui-select-wrap {
   position: relative;
+
+  .title {
+    color: $gray;
+    margin-bottom: 8px;
+  }
+
   .cs-p {
     cursor: pointer;
   }
@@ -224,7 +241,7 @@ const selectedWrapper = ref();
       right: 12px;
       top: calc((100% - 24px) / 2);
       z-index: 10;
-      background-color: $white;
+      background-color: transparent;
 
       > div {
         height: 24px;
@@ -259,10 +276,11 @@ const selectedWrapper = ref();
       &.ui-select {
         .multiselect__tags {
           border-radius: 4px;
-          border-color: $lightest-gray;
+          border-color: $white;
           padding-left: 12px;
           padding-right: 52px;
           padding-top: 7px;
+           border-color: $lightest-gray;
           .multiselect__placeholder {
             padding-top: 4px;
             color: $gray;
@@ -335,17 +353,31 @@ const selectedWrapper = ref();
     &.gray {
       .multiselect__tags {
         background-color: $superlight-gray;
-        border-color: $superlight-gray;
-
+        border-color: $superlight-gray !important;
         input,
         .multiselect__input,
         .multiselect__single {
           background-color: $superlight-gray;
         }
-      }
 
-      .custom-expand {
-        background-color: $superlight-gray;
+        &:hover {
+          background-color: $lightest-gray;
+          border-color: $lightest-gray !important;
+
+          .multiselect__single {
+            background-color: $lightest-gray;
+          }
+        }
+      }
+      &:hover {
+        .custom-expand {
+          img {
+            filter: brightness(0.5);
+          }
+          > div {
+            background-color: $gray;
+          }
+        }
       }
     }
 

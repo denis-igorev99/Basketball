@@ -38,6 +38,14 @@ export class PlayerDetailsModel {
    * * Возраст
    */
   Age: number;
+  /**
+   * * Идентификатор команды
+   */
+  TeamId: number;
+  /**
+   * * Дата рождения
+   */
+  Birthday: Date = null;
 
   constructor(player?: Partial<PlayerDetailsModel>) {
     if (player) Object.assign(this, player);

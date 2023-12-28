@@ -49,7 +49,12 @@ const options = [
 </script>
 
 <template>
-  <Select class="pagination-size-select" v-model="value" :options="options" />
+  <Select
+    class="pagination-size-select"
+    v-model="value"
+    :options="options"
+    selectColor="white"
+  />
 </template>
 
 <style lang="scss">
@@ -64,12 +69,12 @@ const options = [
       .multiselect__tags {
         min-height: 28px;
         padding-top: 2px !important;
-        padding-left: 13px !important;
-        padding-right: 36px !important;
+        padding-left: 2px !important;
+        padding-right: 26px !important;
       }
       .multiselect__single {
         text-align: center;
-        width: 9px;
+        width: 30px;
         margin-bottom: 0;
       }
       .custom-expand {
@@ -77,13 +82,15 @@ const options = [
         right: 4px;
       }
 
-      @include media(">desktop") {
+      @include media(">=desktop") {
         min-width: 88px;
         .multiselect__tags {
           min-height: 40px;
           padding-top: 7px !important;
-          padding-left: 20px !important;
-          padding-right: 56px !important;
+        }
+
+        .multiselect__single {
+          width: 48px;
         }
 
         .custom-expand {

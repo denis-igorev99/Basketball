@@ -34,10 +34,9 @@
       display: none;
     }
 
-    @include media(">desktop") {
+    @include media(">=desktop") {
       display: flex;
       flex-grow: 1;
-      // align-items: center;
       .aith-wrap-content {
         min-width: 606px;
         width: 606px;

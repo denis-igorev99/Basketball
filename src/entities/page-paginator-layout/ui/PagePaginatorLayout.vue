@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, PropType, ref } from "vue";
+import { computed, onMounted, onUnmounted, PropType, ref, useSlots } from "vue";
 import { PaginationDataModel, PaginationFilterModel } from "../models";
 import { Button, Search, Pagination, SelectItemModel } from "@/shared";
 import { PaginationSizeSelect, usePaginationList } from "@/entities";
 import PlusIcon from "@/shared/assets/img/icons/plus.svg";
+import { useRouter } from "vue-router";
 const props = defineProps({
   /**
    * * Данные для управления получением учеников
@@ -19,19 +20,40 @@ const props = defineProps({
     type: Object as PropType<PaginationFilterModel>,
     default: () => new PaginationFilterModel(),
   },
+  /**
+   * * Маршрут для добавления
+   */
+  createRouteName: {
+    type: String,
+  },
 });
 
 const emit = defineEmits<{
-  /**
-   * * Добавить сущность
-   */
-  (e: "click:add"): void;
   /**
    * * Обновление значения
    */
   (e: "update:filter", value: PaginationFilterModel): void;
 }>();
 
+/**
+ * * Настройка над слотом
+ */
+const slots = useSlots();
+/**
+ * * Заполнен ли слот
+ */
+const hasSlot = (name: string) => {
+  return !!slots[name];
+};
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+
+/**
+ * * Фильтр
+ */
 const innerFilter = ref<PaginationFilterModel>(props.filter);
 
 /**
@@ -75,6 +97,20 @@ const setValue = (key: keyof PaginationFilterModel, value: any) => {
   updateList();
 };
 
+/**
+ * * Показывать слот для фильтра
+ */
+const isRightSearch = computed(
+  () => hasSlot("right-search") || width.value > 1024
+);
+
+/**
+ * * Перейти на создание
+ */
+const goToCreate = () => {
+  if (props.createRouteName) router.push({ name: props.createRouteName });
+};
+
 onMounted(() => {
   window.addEventListener("resize", updateWidth);
 });
@@ -93,10 +129,10 @@ onUnmounted(() => {
           @update:modelValue="setValue('Search', $event)"
           placeholder="Search..."
         />
-        <slot name="right-search" />
       </div>
+      <div v-if="isRightSearch"><slot name="right-search" /></div>
       <div class="add-entity">
-        <Button :iconRight="PlusIcon" @click="emit('click:add')">Add</Button>
+        <Button :iconRight="PlusIcon" @click="goToCreate">Add</Button>
       </div>
     </div>
     <div class="page-content">
@@ -132,14 +168,16 @@ onUnmounted(() => {
   flex-direction: column;
   flex-grow: 1;
   row-gap: 16px;
-  column-gap: 32px;
 
   .page-filter {
-    display: flex;
-    flex-direction: column;
-    row-gap: 16px;
-
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 24px;
     @include media("<desktop") {
+      display: flex;
+      flex-direction: column;
+      row-gap: 16px;
+
       .add-entity {
         > button {
           width: 100%;
@@ -157,7 +195,7 @@ onUnmounted(() => {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      @include media(">desktop") {
+      @include media(">=desktop") {
         grid-template-columns: 1fr 1fr 1fr;
         gap: 24px;
       }
@@ -170,13 +208,29 @@ onUnmounted(() => {
     justify-content: space-between;
   }
 
-  @include media(">desktop") {
+  @include media("<desktop") {
+    .page-filter,
+    .page-list,
+    .page-pagination {
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+  }
+
+  @include media(">=desktop") {
     .page-filter {
       flex-direction: row;
       justify-content: space-between;
+
+      .add-entity {
+        display: flex;
+        justify-content: flex-end;
+      }
       .pag-filter-search {
+        display: flex;
+        column-gap: 24px;
         > div {
-          min-width: 364px;
+          width: 100%;
         }
       }
     }

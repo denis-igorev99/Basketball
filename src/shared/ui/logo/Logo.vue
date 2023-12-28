@@ -18,7 +18,7 @@ import Logo from "@/shared/assets/img/logo.svg";
     height: 100%;
   }
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     width: 191px;
     height: 48px;
   }

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SignInModel } from "@/entities";
+import { SignInModel, useUserStore } from "@/entities";
 import {
   Input,
   Checkbox,
@@ -10,6 +10,17 @@ import {
   useLoading,
 } from "@/shared";
 import { computed, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+
+/**
+ * * Стор для работы с пользователем
+ */
+const userStore = useUserStore();
 
 /**
  * * Инструменты отображения загрузки
@@ -27,8 +38,16 @@ const modelValue = ref<SignInModel>(new SignInModel());
 const clickSubmit = async () => {
   if (!StartValidate()) return;
   startLoading();
-
-  stopLoading();
+  await userStore
+    .signIn(modelValue.value)
+    .then((response) => {
+      if (response.IsSuccess) {
+        router.push({
+          name: "teams-list",
+        });
+      }
+    })
+    .finally(() => stopLoading());
 };
 
 /**
@@ -62,7 +81,9 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
       :error="errors?.PasswordError"
     />
     <Button :disabled="isLoading" @click="clickSubmit">Sign In</Button>
-    <div class="info">Not a member yet? <Link routerName="sign-up">Sign up</Link></div>
+    <div class="info">
+      Not a member yet? <Link routerName="sign-up">Sign up</Link>
+    </div>
   </div>
 </template>
 
@@ -87,7 +108,7 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
     width: 100%;
   }
 
-  @include media(">desktop") {
+  @include media(">=desktop") {
     > .title {
       text-align: left;
     }

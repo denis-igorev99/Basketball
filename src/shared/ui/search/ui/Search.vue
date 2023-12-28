@@ -49,6 +49,7 @@ const value = computed({
     position: absolute;
     right: 12px;
     bottom: 12px;
+    top: 12px;
   }
 
   .ui-input-wrap .ui-input {
@@ -64,6 +65,7 @@ const value = computed({
       .ui-input {
         padding-right: 40px;
         background: $white;
+        border-color: $lightest-gray;
       }
     }
   }

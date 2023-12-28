@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import Logo from "@/shared/assets/img/logo.svg";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps({
   /**
@@ -15,20 +17,68 @@ const props = defineProps({
     type: String,
   },
   /**
-   * * Активная иконка
+   * * Маршрут
    */
-  isActive: { type: Boolean },
+  routerName: {
+    type: String,
+  },
 });
+
+const emit = defineEmits<{
+  /**
+   * * Клик
+   */
+  (e: "click"): void;
+}>();
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+const route = useRoute();
+
+/**
+ * * Активен ли маршрут
+ */
+const isActive = computed(() => {
+  if (!props.routerName) return false;
+
+  const routeList = router.getRoutes();
+
+  const currentParentPrefix = getParentPrefix(
+    routeList.find((x) => x.name == route.name).path
+  );
+
+  const routerParentPrefix = getParentPrefix(
+    routeList.find((x) => x.name == props.routerName).path
+  );
+
+  return currentParentPrefix == routerParentPrefix;
+});
+
+/**
+ * * Префикс родительского элемента
+ */
+const getParentPrefix = (path: string) =>
+  path.replace("/", "").split("/")[0] || null;
+
+/**
+ * * Клик
+ */
+const onClick = async () => {
+  emit("click");
+  if (props.routerName) router.push({ name: props.routerName });
+};
 </script>
 
 <template>
-  <div class="icon-text" :class="{ active: isActive }">
+  <div class="icon-text" :class="{ active: isActive }" @click="onClick">
     <slot />
     <div class="text">{{ text }}</div>
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .icon-text {
   display: flex;
   align-items: center;
@@ -56,7 +106,16 @@ const props = defineProps({
     }
   }
 
-  @include media(">tablet") {
+  &:hover {
+    .text {
+      color: $lightest-red;
+    }
+    svg {
+      fill: $lightest-red;
+    }
+  }
+
+  @include media(">=tablet") {
     flex-direction: column;
     row-gap: 4px;
     .text {

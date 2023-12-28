@@ -61,7 +61,7 @@ const changedViewPassword = () => {
 
 <template>
   <div class="ui-input-wrap" :class="{ 'show-error': !!error }">
-    <div class="title" v-if="hasSlot('title')">
+    <div class="title" v-if="inputLabel">
       {{ inputLabel }}
     </div>
     <input

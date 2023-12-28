@@ -52,9 +52,11 @@ const onEdit = () => {
  */
 const onDelete = async () => {
   await deleteTeam(teamDetails.value.Id).then((response) => {
-    if (response) {
-      router.push({ name: "teams-list" });
+    if (!response.IsSuccess) {
+      // todo error
+      return;
     }
+    router.push({ name: "teams-list" });
   });
 };
 
@@ -86,7 +88,7 @@ onMounted(async () => {
         <InfoDetails titleText="Division" :description="teamDetails.Division" />
       </template>
     </DetailsBlock>
-    <PlayerTable :team-id="teamId"/>
+    <PlayerTable :team-id="teamId" />
   </div>
 </template>
 
@@ -96,7 +98,7 @@ onMounted(async () => {
   flex-direction: column;
   row-gap: 16px;
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     row-gap: 24px;
   }
 }

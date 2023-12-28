@@ -84,7 +84,7 @@ const props = defineProps({
         text-align: center;
       }
     }
-    @include media(">desktop") {
+    @include media(">=desktop") {
       border-radius: 15px;
       padding: 48px 37px;
       .info {
@@ -100,7 +100,7 @@ const props = defineProps({
     }
   }
 
-  @include media(">desktop") {
+  @include media(">=desktop") {
     justify-content: center;
   }
 }

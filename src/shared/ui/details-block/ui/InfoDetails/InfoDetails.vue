@@ -37,7 +37,7 @@ const props = defineProps({
     line-height: 24px;
   }
 
-  @include media(">large-desktop") {
+  @include media(">=large-desktop") {
     .title {
       font-size: 24px;
       line-height: 33px;

@@ -36,9 +36,11 @@ const menuStore = useMenuStore();
   min-height: 62px;
   height: 62px;
   background-color: $white;
-  box-shadow: 0px 9px 15px 0px rgba(229, 229, 229, 0.2);
+  box-shadow: 0px 1px 10px 0px rgba($lightest-gray, 0.5);
   padding: 0 12px;
-  z-index: 10;
+  position: fixed;
+  width: 100%;
+  z-index: 20;
   .header {
     display: flex;
     align-items: center;
@@ -56,7 +58,7 @@ const menuStore = useMenuStore();
     }
   }
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     min-height: 80px;
     height: 80px;
     padding: 0 51px;

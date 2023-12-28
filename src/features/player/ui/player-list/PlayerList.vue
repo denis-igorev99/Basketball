@@ -12,12 +12,13 @@ import {
   usePlayerStore,
   useTeamStore,
 } from "@/entities";
+import { TeamSelect } from "@/features";
 import { ref } from "vue";
 
 /**
  * * Фильтр
  */
-const filter = ref<PlayerFilterModel>();
+const filter = ref<PlayerFilterModel>(new PlayerFilterModel());
 
 /**
  * * Управление получением и отображением списка игроков
@@ -40,7 +41,11 @@ async function getPlayers() {
 </script>
 
 <template>
-  <PagePaginatorLayout v-model:filter="filter" :paginator="paginator">
+  <PagePaginatorLayout
+    v-model:filter="filter"
+    :paginator="paginator"
+    create-route-name="player-editor"
+  >
     <template #entity="{ item }">
       <InfoCard
         class="player-card"
@@ -59,6 +64,9 @@ async function getPlayers() {
         description="Add new players to continue"
         maxImgWidth="320px"
       />
+    </template>
+    <template #right-search>
+      <TeamSelect v-model="filter.TeamIds" :multiple="true" :selectColor="'white'" />
     </template>
   </PagePaginatorLayout>
 </template>

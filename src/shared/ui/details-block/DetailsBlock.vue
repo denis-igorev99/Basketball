@@ -127,7 +127,7 @@ const emit = defineEmits<{
     }
   }
 
-  @include media(">large-desktop") {
+  @include media(">=large-desktop") {
     border-radius: 10px;
     overflow: hidden;
 

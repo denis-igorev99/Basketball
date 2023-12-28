@@ -5,7 +5,7 @@ export class PlayerFilterModel {
   /**
    * * Идентификаторы команд
    */
-  TeamIds?: number[];
+  TeamIds?: number[] = [];
 
   constructor(filter?: Partial<PlayerFilterModel>) {
     if (filter) Object.assign(this, filter);

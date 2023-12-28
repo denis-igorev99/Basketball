@@ -124,7 +124,7 @@ onMounted(async () => {
       }
     }
 
-    @include media(">large-desktop") {
+    @include media(">=large-desktop") {
       .info {
         font-size: 18px;
         line-height: 26px;
@@ -165,7 +165,7 @@ onMounted(async () => {
     }
   }
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     border: 1px solid $light-gray;
     border-radius: 10px;
     overflow: hidden;

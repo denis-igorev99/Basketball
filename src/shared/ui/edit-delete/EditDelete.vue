@@ -52,7 +52,7 @@ const emit = defineEmits<{
   column-gap: 12px;
   cursor: pointer;
 
-  @include media(">tablet") {
+  @include media(">=tablet") {
     column-gap: 16px;
   }
 

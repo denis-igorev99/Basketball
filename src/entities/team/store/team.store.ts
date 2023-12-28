@@ -1,6 +1,10 @@
 import { defineStore } from "pinia";
 import { TeamDetailsModel, TeamModel } from "../models";
-import { PaginationFilterModel, PaginationResponseModel } from "@/entities";
+import {
+  PaginationFilterModel,
+  PaginationResponseModel,
+  ResponseModel,
+} from "@/entities";
 import Img from "@/shared/assets/img/test-team.svg";
 import { ref } from "vue";
 
@@ -12,6 +16,11 @@ export const useTeamStore = defineStore("team-store", () => {
    * * Детальные данные команды
    */
   const teamDetails = ref<TeamDetailsModel>(new TeamDetailsModel());
+
+  /**
+   * * Список команд
+   */
+  const teams = ref<TeamModel[]>(new Array<TeamModel>());
 
   /**
    * * Получить детальную информацию команды
@@ -29,14 +38,23 @@ export const useTeamStore = defineStore("team-store", () => {
   };
 
   /**
+   * * Добавить / обновить команду
+   * @returns Статус добавления / обновления
+   */
+  const updateTeam = async () =>
+    new Promise<ResponseModel<boolean>>((resolve) => {
+      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+    });
+
+  /**
    * * Удалить команду
    * @param teamId Идентификатор команды
    * @returns Статус удаления
    */
   const deleteTeam = async (teamId: number) =>
-    new Promise<boolean>((resolve) => {
+    new Promise<ResponseModel<boolean>>((resolve) => {
       teamDetails.value = new TeamDetailsModel();
-      return resolve(true);
+      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
     });
 
   /**
@@ -70,19 +88,19 @@ export const useTeamStore = defineStore("team-store", () => {
               FoundationYear: 1970,
             }),
             new TeamModel({
-              Id: 1,
+              Id: 4,
               ImageUrl: Img,
               Name: "Portland trail blazers",
               FoundationYear: 1970,
             }),
             new TeamModel({
-              Id: 1,
+              Id: 5,
               ImageUrl: Img,
               Name: "Portland trail blazers",
               FoundationYear: 1970,
             }),
             new TeamModel({
-              Id: 1,
+              Id: 6,
               ImageUrl: Img,
               Name: "Portland trail blazers",
               FoundationYear: 1970,
@@ -91,11 +109,27 @@ export const useTeamStore = defineStore("team-store", () => {
         })
       );
     });
+
+  /**
+   * * Получить список команд для выбора
+   */
+  const getTeamsForSelect = async () => {
+    await getTeams(new PaginationFilterModel()).then((response) => {
+      if (response.IsSuccess) {
+        teams.value = response.Items;
+      }
+    });
+  };
+
   return {
     /**
      * * Детальные данные команды
      */
     teamDetails,
+    /**
+     * * Список команд
+     */
+    teams,
     /**
      * * Получить список команд
      * @param filter Фильтр
@@ -113,5 +147,14 @@ export const useTeamStore = defineStore("team-store", () => {
      * @returns Статус удаления
      */
     deleteTeam,
+    /**
+     * * Добавить / обновить команду
+     * @returns Статус добавления / обновления
+     */
+    updateTeam,
+    /**
+     * * Получить список команд для выбора
+     */
+    getTeamsForSelect,
   };
 });

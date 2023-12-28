@@ -37,7 +37,11 @@ async function getTeams() {
 </script>
 
 <template>
-  <PagePaginatorLayout v-model:filter="filter" :paginator="paginator">
+  <PagePaginatorLayout
+    v-model:filter="filter"
+    :paginator="paginator"
+    create-route-name="team-editor"
+  >
     <template #entity="{ item }">
       <InfoCard
         :imgUrl="item.ImageUrl"

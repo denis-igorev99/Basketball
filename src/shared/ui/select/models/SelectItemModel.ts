@@ -5,7 +5,7 @@ export class SelectItemModel {
   /**
    * * Идентификатор
    */
-  Id: number;
+  Id: number | string;
   /**
    * * Значение
    */

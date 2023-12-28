@@ -36,12 +36,15 @@ import { Headerbar, Sidebar } from "@/shared";
       flex-grow: 1;
       background: $superlight-gray;
       width: 100%;
-
-      @include media(">tablet") {
+      padding-top: 16px;
+      margin-top: 62px;
+      @include media(">=tablet") {
         padding: 32px;
+        margin-top: 80px;
+        margin-left: 140px;
       }
 
-      @include media(">large-desktop") {
+      @include media(">=large-desktop") {
         padding: 32px 80px;
       }
     }

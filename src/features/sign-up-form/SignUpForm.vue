@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SignUpModel } from "@/entities";
+import { SignUpModel, useUserStore } from "@/entities";
 import {
   Input,
   Checkbox,
@@ -10,6 +10,17 @@ import {
   useLoading,
 } from "@/shared";
 import { computed, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+
+/**
+ * * Стор для работы с пользователем
+ */
+const userStore = useUserStore();
 
 /**
  * * Инструменты отображения загрузки
@@ -37,8 +48,16 @@ const accept = ref<boolean>(false);
 const clickSubmit = async () => {
   if (!StartValidate()) return;
   startLoading();
-
-  stopLoading();
+  await userStore
+    .signUp(modelValue.value)
+    .then((response) => {
+      if (response.IsSuccess) {
+        router.push({
+          name: "teams-list",
+        });
+      }
+    })
+    .finally(() => stopLoading());
 };
 
 /**
@@ -92,7 +111,9 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
       >I accept the agreement</Checkbox
     >
     <Button :disabled="isLoading" @click="clickSubmit">Sign Up</Button>
-    <div class="info">Already a member? <Link routerName="sign-in">Sign in</Link></div>
+    <div class="info">
+      Already a member? <Link routerName="sign-in">Sign in</Link>
+    </div>
   </div>
 </template>
 
@@ -116,7 +137,7 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
     width: 100%;
   }
 
-  @include media(">desktop") {
+  @include media(">=desktop") {
     > .title {
       text-align: left;
     }

@@ -17,3 +17,4 @@ export * from "./bread-crumbs";
 export * from "./editor-block";
 export * from "./upload-avatar";
 export * from "./date-picker";
+export * from "./not-found";

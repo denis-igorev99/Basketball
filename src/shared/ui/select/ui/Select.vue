@@ -300,8 +300,6 @@ const selectedWrapper = ref();
           }
           .multiselect__tags-wrap {
             white-space: nowrap;
-            .multiselect__tag {
-            }
           }
         }
 

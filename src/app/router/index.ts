@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { BaseLayout, AuthLayout } from "@/shared";
 import {
+  PageNotFound,
   PlayerDetailsPage,
   PlayerEditorPage,
   PlayersPage,
@@ -90,6 +91,12 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  {
+    name: "page-not-found",
+    path: "/404",
+    component: PageNotFound,
+    meta: { allowAnonymous: true, title: "Page not found" },
+  },
 ];
 
 const router = createRouter({
@@ -97,7 +104,12 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from, next) => {  
+  // Проверяем, существует ли маршрут
+  if (to.matched.length === 0) {
+    return next({ name: "page-not-found" });
+  }
+
   document.title = `Lebron James - ${to.meta.title || "dex"}`;
   next();
 });

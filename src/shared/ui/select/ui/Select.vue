@@ -173,7 +173,7 @@ const selectedWrapper = ref();
         <template #caret>
           <div class="custom-expand">
             <img
-              v-if="selectedOption?.length || isClear && !multiple"
+              v-if="selectedOption?.length || (isClear && selectedOption?.Id)"
               :src="CloseGrayIcon"
               alt="Close"
               width="16"

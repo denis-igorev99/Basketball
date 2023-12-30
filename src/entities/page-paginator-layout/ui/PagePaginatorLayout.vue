@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, PropType, ref, useSlots } from "vue";
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  PropType,
+  ref,
+  useSlots,
+  watch,
+} from "vue";
 import { PaginationDataModel, PaginationFilterModel } from "../models";
 import { Button, Search, Pagination, SelectItemModel } from "@/shared";
 import { PaginationSizeSelect, usePaginationList } from "@/entities";
@@ -35,10 +43,22 @@ const emit = defineEmits<{
   (e: "update:filter", value: PaginationFilterModel): void;
 }>();
 
+watch(
+  () => props.filter,
+  () => {
+    if (JSON.stringify(props.filter) != JSON.stringify(paginationFilter)) {
+      updateFilter(props.filter);
+      updateList();
+    }
+  },
+  { deep: true }
+);
+
 /**
  * * Настройка над слотом
  */
 const slots = useSlots();
+
 /**
  * * Заполнен ли слот
  */
@@ -69,9 +89,11 @@ const showCount = computed(() => (width.value < 1024 ? 3 : 4));
 /**
  * * Управление листом пагинации
  */
-const { items, count, updateList } = usePaginationList({
-  PaginationData: props.paginator,
-});
+const { items, count, paginationFilter, updateList, updateFilter } =
+  usePaginationList({
+    PaginationData: props.paginator,
+    FilterData: innerFilter.value,
+  });
 
 /**
  * * Обновить ширину экрана
@@ -86,15 +108,13 @@ const updateWidth = () => {
  * @param value Значение
  */
 const setValue = (key: keyof PaginationFilterModel, value: any) => {
-  emit(
-    "update:filter",
-    new PaginationFilterModel({
-      ...props.filter,
-      [key]: value,
-    })
-  );
+  const _filter = new PaginationFilterModel({
+    ...props.filter,
+    CurrentPage: 1,
+    [key]: value,
+  });
 
-  updateList();
+  emit("update:filter", _filter);
 };
 
 /**
@@ -126,8 +146,8 @@ onUnmounted(() => {
       <div class="pag-filter-search">
         <Search
           :model-value="filter.Search"
-          @update:modelValue="setValue('Search', $event)"
           placeholder="Search..."
+          @update:modelValue="setValue('Search', $event)"
         />
       </div>
       <div v-if="isRightSearch"><slot name="right-search" /></div>

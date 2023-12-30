@@ -72,8 +72,6 @@ const onUpdateModelValue = (value: SelectItemModel | SelectItemModel[]) => {
  * * Удалить элемент
  */
 const deleteItem = (id?: number | string) => {
-  console.log("deleteItem", id);
-
   if (!id) {
     emit("update:modelValue", props.multiple ? [] : null);
     hiddenOptionsCount.value = 0;
@@ -280,7 +278,7 @@ const selectedWrapper = ref();
           padding-left: 12px;
           padding-right: 52px;
           padding-top: 7px;
-           border-color: $lightest-gray;
+          border-color: $lightest-gray;
           .multiselect__placeholder {
             padding-top: 4px;
             color: $gray;

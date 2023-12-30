@@ -26,17 +26,13 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
     ..._params,
     FilterData: _params.FilterData,
   };
-  console.log("params", params);
 
   /**
    * * Фильтр
    */
-  const filter = ref(new PaginationFilterModel({ ...params.FilterData }));
-
-  /**
-   * * Поиск
-   */
-  const search = ref();
+  const paginationFilter = ref(
+    new PaginationFilterModel({ ...params.FilterData })
+  );
 
   /**
    * * Кол-во элементов для отображения
@@ -53,10 +49,7 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
    */
   const updateList = async () => {
     try {
-      console.log("params.PaginationData", params.PaginationData);
-
-      let response = await params.PaginationData.Search(filter.value);
-      console.log("response", response);
+      let response = await params.PaginationData.Search(paginationFilter.value);
 
       if (response.IsSuccess) {
         params.PaginationData.Items = response.Items;
@@ -65,16 +58,19 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
     } catch {}
   };
 
+  /**
+   * * Обновить фильтр
+   * @param _filter Фильтр
+   */
+  const updateFilter = (_filter: PaginationFilterModel) => {
+    paginationFilter.value = new PaginationFilterModel(_filter);
+  };
+
   onMounted(() => {
     updateList();
-    console.log("update list");
   });
 
   return {
-    /**
-     * * Фильтр
-     */
-    filter,
     /**
      * * Список
      */
@@ -84,8 +80,17 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
      */
     count,
     /**
+     * * Фильтр
+     */
+    paginationFilter,
+    /**
      * * Обновить список
      */
     updateList,
+    /**
+     * * Обновить фильтр
+     * @param _filter Фильтр
+     */
+    updateFilter,
   };
 };

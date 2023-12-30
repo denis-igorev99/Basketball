@@ -46,6 +46,7 @@ onUnmounted(() => {
         <div class="sidebar-content">
           <div class="custom-user-avatar">
             <UserAvatar class="custom-menu-avatar" />
+            <slot name="avatar"/>
           </div>
 
           <div class="menu-items">
@@ -191,7 +192,7 @@ onUnmounted(() => {
       bottom: 0;
       right: 0;
       left: 0;
-      z-index: 1;
+      z-index: 20;
     }
   }
 
@@ -199,7 +200,7 @@ onUnmounted(() => {
     &.showing {
       .sidebar-drawer {
         margin-left: 0px;
-        z-index: 11;
+        z-index: 21;
         padding-top: 62px;
       }
     }

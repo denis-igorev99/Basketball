@@ -4,9 +4,10 @@ import {
   PaginationFilterModel,
   PaginationResponseModel,
   ResponseModel,
+  useMultimediaStore,
 } from "@/entities";
-import Img from "@/shared/assets/img/test-team.svg";
 import { ref } from "vue";
+import { api } from "@/shared";
 
 /**
  * * Стор для работы с командой
@@ -23,18 +24,71 @@ export const useTeamStore = defineStore("team-store", () => {
   const teams = ref<TeamModel[]>(new Array<TeamModel>());
 
   /**
+   * * Стор для работы с изображениями
+   */
+  const { upload, isBase64 } = useMultimediaStore();
+
+  /**
+   * * Получить список команд
+   * @param filter Фильтр
+   * @returns Список команд
+   */
+  const getTeams = async (filter: PaginationFilterModel) =>
+    new Promise<PaginationResponseModel<TeamModel>>(async (resolve) => {
+      await api
+        .get("/api/Team/GetTeams", {
+          params: {
+            PageSize: filter.Size,
+            Page: filter.CurrentPage,
+            Name: filter.Search,
+          },
+        })
+        .then(({ data }) =>
+          resolve(
+            new PaginationResponseModel<TeamModel>({
+              IsSuccess: true,
+              Items: data.data?.map(
+                (x: any) =>
+                  new TeamModel({
+                    Id: x.id,
+                    Name: x.name,
+                    ImageUrl: x.imageUrl,
+                    Conference: x.conference,
+                    Division: x.division,
+                    FoundationYear: x.foundationYear,
+                  })
+              ),
+              Count: data.count,
+            })
+          )
+        )
+        .catch(() => resolve(new PaginationResponseModel<TeamModel>()));
+    });
+
+  /**
    * * Получить детальную информацию команды
    * @param teamId Идентификатор команды
    */
   const getTeamDetails = async (teamId: number) => {
-    teamDetails.value = new TeamDetailsModel({
-      Id: 1,
-      Name: "Denver Nuggets",
-      ImageUrl: Img,
-      FoundationYear: 1970,
-      Conference: "Western",
-      Division: "Northwestern",
-    });
+    await api
+      .get("/api/Team/Get", {
+        params: {
+          id: teamId,
+        },
+      })
+      .then(({ data }) => {
+        {
+          teamDetails.value = new TeamDetailsModel({
+            Id: data.id,
+            Name: data.name,
+            ImageUrl: data.imageUrl,
+            Conference: data.conference,
+            Division: data.division,
+            FoundationYear: data.foundationYear,
+          });
+        }
+      })
+      .catch(() => new PaginationResponseModel<TeamModel>());
   };
 
   /**
@@ -42,8 +96,47 @@ export const useTeamStore = defineStore("team-store", () => {
    * @returns Статус добавления / обновления
    */
   const updateTeam = async () =>
-    new Promise<ResponseModel<boolean>>((resolve) => {
-      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+    new Promise<ResponseModel<boolean>>(async (resolve) => {
+      if (isBase64(teamDetails.value.ImageUrl)) {
+        await upload(teamDetails.value.Image).then((response) => {
+          if (response.IsSuccess) {
+            teamDetails.value.ImageUrl = response.Value;
+          }
+        });
+      }
+
+      if (teamDetails.value.Id) {
+        await api
+          .put("/api/Team/Update", {
+            id: teamDetails.value.Id,
+            name: teamDetails.value.Name,
+            imageUrl: teamDetails.value.ImageUrl,
+            conference: teamDetails.value.Conference,
+            division: teamDetails.value.Division,
+            foundationYear: teamDetails.value.FoundationYear,
+          })
+          .then(() => {
+            teamDetails.value = new TeamDetailsModel();
+            getTeamsForSelect();
+            return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+          })
+          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+      } else {
+        await api
+          .post("/api/Team/Add", {
+            name: teamDetails.value.Name,
+            imageUrl: teamDetails.value.ImageUrl,
+            conference: teamDetails.value.Conference,
+            division: teamDetails.value.Division,
+            foundationYear: teamDetails.value.FoundationYear,
+          })
+          .then(() => {
+            teamDetails.value = new TeamDetailsModel();
+            getTeamsForSelect();
+            return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+          })
+          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+      }
     });
 
   /**
@@ -52,62 +145,20 @@ export const useTeamStore = defineStore("team-store", () => {
    * @returns Статус удаления
    */
   const deleteTeam = async (teamId: number) =>
-    new Promise<ResponseModel<boolean>>((resolve) => {
-      teamDetails.value = new TeamDetailsModel();
-      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
-    });
-
-  /**
-   * * Получить список команд
-   * @param filter Фильтр
-   * @returns Список команд
-   */
-  const getTeams = async (filter: PaginationFilterModel) =>
-    new Promise<PaginationResponseModel<TeamModel>>((resolve) => {
-      return resolve(
-        new PaginationResponseModel<TeamModel>({
-          IsSuccess: true,
-          Count: 6,
-          Items: [
-            new TeamModel({
-              Id: 1,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-            new TeamModel({
-              Id: 2,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-            new TeamModel({
-              Id: 3,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-            new TeamModel({
-              Id: 4,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-            new TeamModel({
-              Id: 5,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-            new TeamModel({
-              Id: 6,
-              ImageUrl: Img,
-              Name: "Portland trail blazers",
-              FoundationYear: 1970,
-            }),
-          ],
+    new Promise<ResponseModel<boolean>>(async (resolve) => {
+      await api
+        .delete("/api/Team/Delete", {
+          params: {
+            id: teamId,
+          },
         })
-      );
+        .then(() => {
+          teamDetails.value = new TeamDetailsModel();
+
+          teams.value = teams.value.filter(x=> x.Id != teamId);
+          return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+        })
+        .catch(() => resolve(new ResponseModel<boolean>({ IsSuccess: false })));
     });
 
   /**

@@ -15,7 +15,7 @@ const playerId = computed(() => Number(router.currentRoute.value.params.id) || 0
 </script>
 
 <template>
-  <DetailsPlayer :player-id="teamId" />
+  <DetailsPlayer :player-id="playerId" />
 </template>
 
 <style lang="scss"></style>

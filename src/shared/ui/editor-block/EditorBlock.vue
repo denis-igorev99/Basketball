@@ -9,6 +9,12 @@ const props = defineProps({
   breadCumbs: {
     type: Array as PropType<BreadCrumbsModel[]>,
   },
+  /**
+   * * Загрузка
+   */
+  isLoading: {
+    type: Boolean,
+  },
 });
 
 const emit = defineEmits<{
@@ -35,8 +41,13 @@ const emit = defineEmits<{
           <slot />
         </div>
         <div class="buttons-wrap">
-          <Button button-color="default" @click="emit('cancel')">Cancel</Button>
-          <Button @click="emit('save')">Save</Button>
+          <Button
+            :disabled="isLoading"
+            button-color="default"
+            @click="emit('cancel')"
+            >Cancel</Button
+          >
+          <Button :disabled="isLoading" @click="emit('save')">Save</Button>
         </div>
       </div>
     </div>
@@ -55,6 +66,22 @@ const emit = defineEmits<{
     padding: 64px 8px 0 8px;
     .preview {
       display: flex;
+      @include media("<large-desktop") {
+        justify-content: center;
+      }
+      .content {
+        flex-direction: row;
+        column-gap: 95px;
+        padding: 72px 41px 0 41px;
+
+        .preview {
+          width: 42.6%;
+        }
+
+        .form-content {
+          min-width: 366px;
+        }
+      }
     }
 
     .form-content {

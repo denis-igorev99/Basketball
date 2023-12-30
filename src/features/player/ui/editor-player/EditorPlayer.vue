@@ -53,16 +53,16 @@ const breadCumbs = computed(() => [
  * * Сохранить
  */
 const onSave = async () => {
-  if (!StartValidate()) return;
+  if (!startValidate()) return;
+
+  stopValidate();
   startLoading();
 
   await updatePlayer()
     .then((response) => {
-      if (!response.IsSuccess) {
-        // todo error
-        return;
+      if (response.IsSuccess) {
+        router.push({ name: "players-list" });
       }
-      router.push({ name: "players-list" });
     })
     .finally(() => stopLoading());
 };
@@ -88,7 +88,7 @@ onMounted(async () => {
 /**
  * * Валидатор формы
  */
-const { StartValidate, errors, isDisabledSubmit, isValidate } =
+const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
   useFormValidator(
     computed(() => ({
       NameError: playerDetails.value.Name,
@@ -98,6 +98,7 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
       WeightError: playerDetails.value.Weight,
       NumberError: playerDetails.value.Number,
       BirthdayError: playerDetails.value.Birthday,
+      AvatarUrlError: playerDetails.value.AvatarUrl,
     })),
     {
       NameError: [required("Please enter your name")],
@@ -107,14 +108,25 @@ const { StartValidate, errors, isDisabledSubmit, isValidate } =
       WeightError: [required("Please enter weight")],
       NumberError: [required("Please enter number")],
       BirthdayError: [required("Please select your birthday")],
+      AvatarUrlError: [required("Please upload avatar")],
     }
   );
 </script>
 
 <template>
-  <EditorBlock :bread-cumbs="breadCumbs" @save="onSave" @cancel="onCancel">
+  <EditorBlock
+    :bread-cumbs="breadCumbs"
+    :isLoading="isLoading"
+    @save="onSave"
+    @cancel="onCancel"
+  >
     <template #preview>
-      <UploadAvatar class="avatar" v-model="playerDetails.ImageUrl" />
+      <UploadAvatar
+        class="avatar"
+        :error="errors?.AvatarUrlError"
+        v-model="playerDetails.AvatarUrl"
+        v-model:file="playerDetails.Avatar"
+      />
     </template>
     <Input
       v-model="playerDetails.Name"

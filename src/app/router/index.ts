@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { BaseLayout, AuthLayout } from "@/shared";
+import { BaseLayout, AuthLayout } from "@/widgets";
 import {
   PageNotFound,
   PlayerDetailsPage,
@@ -11,6 +11,7 @@ import {
   TeamEditorPage,
   TeamsPage,
 } from "@/pages";
+import { useUserStore } from "@/entities";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -99,18 +100,43 @@ const routes: Array<RouteRecordRaw> = [
   },
 ];
 
+let isGetUser = false;
+
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {  
+router.beforeEach(async (to, from, next) => {
+  // Устанавливаем заголовок страницы
+  document.title = to.meta?.title
+    ? `Basketball - ${to.meta.title}`
+    : "Page not found";
+
   // Проверяем, существует ли маршрут
   if (to.matched.length === 0) {
     return next({ name: "page-not-found" });
   }
 
-  document.title = `Lebron James - ${to.meta.title || "dex"}`;
+  // Стор для работы с пользователем
+  const userStore = useUserStore();
+  if (!isGetUser) {
+    await userStore.getUser();
+    isGetUser = true;
+  }
+
+  // Если маршрут доступен не для авторизованного пользователя, пропускаем
+  if (to.meta && to.meta.allowAnonymous) {
+    next();
+    return;
+  }
+
+  // Если пользователь не авторизован, отправляем на авторизацию
+  if (!userStore.isAuthorized) {
+    next({ name: "sign-in" });
+    return;
+  }
+
   next();
 });
 

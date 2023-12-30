@@ -33,13 +33,19 @@ const emit = defineEmits<{
    */
   (e: "delete"): void;
 }>();
+
+const onDelete = () => {
+  if (window.confirm("Confirm deletion!")) {
+    emit("delete");
+  }
+};
 </script>
 
 <template>
   <div class="details-block">
     <div class="header">
       <BreadCrumbs :bread-cumbs="breadCumbs" />
-      <EditDelete @edit="emit('edit')" @delete="emit('delete')" />
+      <EditDelete @edit="emit('edit')" @delete="onDelete" />
     </div>
     <div class="content" :class="{ avatar: isAvatar }">
       <div class="preview">

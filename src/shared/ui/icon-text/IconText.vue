@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useMenuStore } from "@/entities";
 import Logo from "@/shared/assets/img/logo.svg";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -67,7 +68,12 @@ const getParentPrefix = (path: string) =>
  */
 const onClick = async () => {
   emit("click");
-  if (props.routerName) router.push({ name: props.routerName });
+  if (props.routerName) {
+    const menuStore = useMenuStore();
+
+    if (menuStore.drawer) menuStore.changeMenu();
+    router.push({ name: props.routerName });
+  }
 };
 </script>
 

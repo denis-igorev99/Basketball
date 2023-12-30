@@ -14,6 +14,17 @@ import {
 } from "@/entities";
 import { TeamSelect } from "@/features";
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
+/**
+ * * Стор для работы с командой
+ */
+const { teams } = storeToRefs(useTeamStore());
+
+/**
+ * * Название команды
+ */
+const teamName = (teamId: number) =>
+  teams.value?.find((x) => x.Id == teamId)?.Name ?? "";
 
 /**
  * * Фильтр
@@ -36,8 +47,18 @@ const playerStore = usePlayerStore();
  * * Получить список игроков
  */
 async function getPlayers() {
-  return await playerStore.getPlayers(new PlayerFilterModel());
+  return await playerStore.getPlayers(filter.value);
 }
+
+/**
+ * * Обновить фильтр по командам
+ */
+const updateTeamIds = (ids: number[]) => {
+  let _filter = new PlayerFilterModel(JSON.parse(JSON.stringify(filter.value)));
+  _filter.TeamIds = ids;
+  _filter.CurrentPage = 1;
+  filter.value = new PlayerFilterModel(_filter);
+};
 </script>
 
 <template>
@@ -51,7 +72,7 @@ async function getPlayers() {
         class="player-card"
         :imgUrl="item.AvatarUrl"
         :text="item.Name"
-        :description="item.Team"
+        :description="teamName(item.TeamId)"
         :details-id="item.Id"
         :details-router-name="'player-details'"
       >
@@ -66,7 +87,12 @@ async function getPlayers() {
       />
     </template>
     <template #right-search>
-      <TeamSelect v-model="filter.TeamIds" :multiple="true" :selectColor="'white'" />
+      <TeamSelect
+        :model-value="filter.TeamIds"
+        :multiple="true"
+        :selectColor="'white'"
+        @update:modelValue="updateTeamIds"
+      />
     </template>
   </PagePaginatorLayout>
 </template>

@@ -46,7 +46,9 @@ const accept = ref<boolean>(false);
  * * Отправить форму
  */
 const clickSubmit = async () => {
-  if (!StartValidate()) return;
+  if (!startValidate() || !accept.value) return;
+
+  stopValidate();
   startLoading();
   await userStore
     .signUp(modelValue.value)
@@ -63,7 +65,7 @@ const clickSubmit = async () => {
 /**
  * * Валидатор формы
  */
-const { StartValidate, errors, isDisabledSubmit, isValidate } =
+const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
   useFormValidator(
     computed(() => ({
       NameError: modelValue.value.Name,

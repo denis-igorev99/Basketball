@@ -40,7 +40,7 @@ const menuStore = useMenuStore();
   padding: 0 12px;
   position: fixed;
   width: 100%;
-  z-index: 20;
+  z-index: 30;
   .header {
     display: flex;
     align-items: center;

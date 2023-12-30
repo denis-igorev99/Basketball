@@ -7,11 +7,21 @@ const props = withDefaults(defineProps<IButtonProps>(), {
   buttonColor: "primary",
 });
 
-const emit = defineEmits(["click"]);
+const emit = defineEmits<{
+  /**
+   * * Событие клика
+   */
+  (e: "click"): void;
+}>();
 </script>
 
 <template>
-  <button class="ui-button" :class="buttonColor" @click="emit('click')">
+  <button
+    class="ui-button"
+    :class="buttonColor"
+    v-bind="$attrs"
+    @click="emit('click')"
+  >
     <slot />
     <img
       v-if="iconRight"

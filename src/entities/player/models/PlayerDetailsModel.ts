@@ -1,53 +1,19 @@
+import { PlayerModel } from "./PlayerModel";
+
 /**
  * * Детальная модель игрока
  */
-export class PlayerDetailsModel {
-  /**
-   * * Идентификатор
-   */
-  Id: number;
-  /**
-   * * Имя
-   */
-  Name: string;
-  /**
-   * * Аватарка
-   */
-  AvatarUrl: string;
-  /**
-   * * Номер
-   */
-  Number: number;
-  /**
-   * * Команда
-   */
-  Team: string;
-  /**
-   * * Позиция
-   */
-  Position: string;
-  /**
-   * * Рост
-   */
-  Height: number;
-  /**
-   * * Вес
-   */
-  Weight: number;
-  /**
-   * * Возраст
-   */
-  Age: number;
-  /**
-   * * Идентификатор команды
-   */
-  TeamId: number;
+export class PlayerDetailsModel extends PlayerModel {
   /**
    * * Дата рождения
    */
   Birthday: Date = null;
-
+  /**
+   * * Загружаемый файл
+   */
+  Avatar?: File;
   constructor(player?: Partial<PlayerDetailsModel>) {
+    super(player);
     if (player) Object.assign(this, player);
   }
 }

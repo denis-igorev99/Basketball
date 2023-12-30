@@ -40,12 +40,13 @@ onMounted(async () => {
           <div class="td">{{ player.Number }}</div>
           <div class="td">
             <div class="player-info">
-              <img
-                width="52"
-                height="38"
-                :src="player.AvatarUrl"
-                alt="Avatar"
-              />
+              <div class="avatar">
+                <img
+                  width="40"
+                  :src="player.AvatarUrl"
+                  alt="Avatar"
+                />
+              </div>
               <div class="initials">
                 <div class="player-name">{{ player.Name }}</div>
                 <div class="player-position">{{ player.Position }}</div>
@@ -109,6 +110,18 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       column-gap: 10px;
+
+      .avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 52px;
+
+        img {
+          border-radius: 50%;
+        }
+      }
+
       .initials {
         display: flex;
         flex-direction: column;

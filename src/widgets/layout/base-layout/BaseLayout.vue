@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Headerbar, Sidebar } from "@/shared";
+import { Headerbar, Sidebar } from "../";
 </script>
 
 <template>

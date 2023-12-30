@@ -14,7 +14,7 @@ import { ref } from "vue";
 /**
  * * Фильтр
  */
-const filter = ref<PaginationFilterModel>();
+const filter = ref<PaginationFilterModel>(new PaginationFilterModel());
 
 /**
  * * Управление получением и отображением списка команды
@@ -32,7 +32,7 @@ const teamStore = useTeamStore();
  * * Получить список команд
  */
 async function getTeams() {
-  return await teamStore.getTeams(new PaginationFilterModel());
+  return await teamStore.getTeams(filter.value);
 }
 </script>
 

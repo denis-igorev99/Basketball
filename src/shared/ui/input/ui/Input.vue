@@ -55,7 +55,6 @@ const innerType = ref<string>(attrs.type as string);
  */
 const changedViewPassword = () => {
   innerType.value = innerType.value == "password" ? "text" : "password";
-  console.log("innerType.value ", innerType.value);
 };
 </script>
 

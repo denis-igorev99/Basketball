@@ -95,7 +95,7 @@ export const useFormValidator = <T extends Record<string, any>>(fields: Computed
    * * Начать валидацию
    * @returns
    */
-  const StartValidate = () => {
+  const startValidate = () => {
     isValidate.value = true;
     return CheckIsValid();
   };
@@ -103,13 +103,13 @@ export const useFormValidator = <T extends Record<string, any>>(fields: Computed
   /**
    * * Закончить валидацию
    */
-  const StopValidate = () => {
+  const stopValidate = () => {
     isValidate.value = false;
   };
 
   return {
-    StartValidate,
-    StopValidate,
+    startValidate,
+    stopValidate,
     isValidate,
     errors,
     errorsArray,

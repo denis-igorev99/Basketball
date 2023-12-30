@@ -54,6 +54,7 @@ const props = defineProps({
     background: $white;
     padding: 48px 18px;
     max-width: 556px;
+    width: 100%;
 
     .preview {
       width: 100%;

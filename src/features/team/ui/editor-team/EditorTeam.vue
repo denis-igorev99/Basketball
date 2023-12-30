@@ -51,16 +51,16 @@ const breadCumbs = computed(() => [
  * * Сохранить
  */
 const onSave = async () => {
-  if (!StartValidate()) return;
+  if (!startValidate()) return;
+
+  stopValidate();
   startLoading();
 
   await updateTeam()
     .then((response) => {
-      if (!response.IsSuccess) {
-        // todo error
-        return;
+      if (response.IsSuccess) {
+        router.push({ name: "teams-list" });
       }
-      router.push({ name: "teams-list" });
     })
     .finally(() => stopLoading());
 };
@@ -86,27 +86,38 @@ onMounted(async () => {
 /**
  * * Валидатор формы
  */
-const { StartValidate, errors, isDisabledSubmit, isValidate } =
+const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
   useFormValidator(
     computed(() => ({
       NameError: teamDetails.value.Name,
       DivisionError: teamDetails.value.Division,
       ConferenceError: teamDetails.value.Conference,
       FoundationYearError: teamDetails.value.FoundationYear,
+      ImageUrlError: teamDetails.value.ImageUrl,
     })),
     {
       NameError: [required("Please enter your name")],
       DivisionError: [required("Please enter division")],
       ConferenceError: [required("Please enter conference")],
       FoundationYearError: [required("Please enter foundation year")],
+      ImageUrlError: [required("Please upload image")],
     }
   );
 </script>
 
 <template>
-  <EditorBlock :bread-cumbs="breadCumbs" @save="onSave" @cancel="onCancel">
+  <EditorBlock
+    :bread-cumbs="breadCumbs"
+    :isLoading="isLoading"
+    @save="onSave"
+    @cancel="onCancel"
+  >
     <template #preview>
-      <UploadAvatar v-model="teamDetails.ImageUrl" />
+      <UploadAvatar
+        v-model="teamDetails.ImageUrl"
+        v-model:file="teamDetails.Image"
+        :error="errors?.ImageUrlError"
+      />
     </template>
     <Input
       v-model="teamDetails.Name"

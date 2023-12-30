@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AuthWrap } from "@/shared";
+import { AuthWrap } from "@/widgets";
 import { SignInForm } from "@/features";
 import SignInPreview from "@/shared/assets/img/sign-in-preview.svg";
 </script>

@@ -36,8 +36,11 @@ const modelValue = ref<SignInModel>(new SignInModel());
  * * Отправить форму
  */
 const clickSubmit = async () => {
-  if (!StartValidate()) return;
+  if (!startValidate()) return;
+
+  stopValidate();
   startLoading();
+
   await userStore
     .signIn(modelValue.value)
     .then((response) => {
@@ -53,7 +56,7 @@ const clickSubmit = async () => {
 /**
  * * Валидатор формы
  */
-const { StartValidate, errors, isDisabledSubmit, isValidate } =
+const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
   useFormValidator(
     computed(() => ({
       LoginError: modelValue.value.Login,

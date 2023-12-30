@@ -6,12 +6,13 @@ import {
   PositionModel,
 } from "../models";
 import {
-  PaginationFilterModel,
   PaginationResponseModel,
   ResponseModel,
+  useMultimediaStore,
 } from "@/entities";
 import Img from "@/shared/assets/img/user.png";
 import { ref } from "vue";
+import { api } from "@/shared";
 
 /**
  * * Стор для работы с игроками
@@ -35,65 +36,9 @@ export const usePlayerStore = defineStore("player-store", () => {
   const positions = ref<PositionModel[]>(new Array<PositionModel>());
 
   /**
-   * * Получить список игроков команды
-   * @param teamId Идентификатор команды
+   * * Стор для работы с изображениями
    */
-  const getTeamPlayers = async (teamId: number) => {
-    teamPleyars.value = new Array<PlayerDetailsModel>();
-    for (let i = 1; i < 10; i++) {
-      teamPleyars.value.push(
-        new PlayerDetailsModel({
-          Id: i,
-          Name: "Denver Nuggets",
-          AvatarUrl: Img,
-          Age: 27,
-          Height: 206,
-          Number: i,
-          Position: "Forward",
-          Team: "Denver Nuggets",
-          Weight: 95,
-        })
-      );
-    }
-  };
-
-  /**
-   * * Добавить / обновить игрока
-   * @returns Статус добавления / обновления
-   */
-  const updatePlayer = async () =>
-    new Promise<ResponseModel<boolean>>((resolve) => {
-      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
-    });
-
-  /**
-   * * Получить детальную информацию команды
-   * @param teamId Идентификатор команды
-   */
-  const getPlayerDetails = async (playerId: number) => {
-    playerDetails.value = new PlayerDetailsModel({
-      Id: 1,
-      Name: "Denver Nuggets",
-      AvatarUrl: Img,
-      Age: 27,
-      Height: 206,
-      Number: 1,
-      Position: "Forward",
-      Team: "Denver Nuggets",
-      Weight: 95,
-    });
-  };
-
-  /**
-   * * Удалить игрока
-   * @param teamId Идентификатор игрока
-   * @returns Статус удаления
-   */
-  const deletePlayer = async (playerId: number) =>
-    new Promise<ResponseModel<boolean>>((resolve) => {
-      playerDetails.value = new PlayerDetailsModel();
-      return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
-    });
+  const { upload, isBase64 } = useMultimediaStore();
 
   /**
    * * Получить список игроков
@@ -101,74 +46,207 @@ export const usePlayerStore = defineStore("player-store", () => {
    * @returns Список игроков
    */
   const getPlayers = async (filter: PlayerFilterModel) =>
-    new Promise<PaginationResponseModel<PlayerModel>>((resolve) => {
-      return resolve(
-        new PaginationResponseModel<PlayerModel>({
-          IsSuccess: true,
-          Count: 6,
-          Items: [
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-            new PlayerModel({
-              Id: 1,
-              AvatarUrl: Img,
-              Name: "Kyle Anderson",
-              Number: 1,
-              Team: "Portland trail blazers",
-            }),
-          ],
+    new Promise<PaginationResponseModel<PlayerModel>>(async (resolve) => {
+      await api
+        .get("/api/Player/GetPlayers", {
+          params: {
+            name: filter.Search,
+            teamIds: filter.TeamIds,
+            page: filter.CurrentPage,
+            pageSize: filter.Size,
+          },
+          paramsSerializer: {
+            indexes: true,
+          },
         })
-      );
+        .then(({ data }) =>
+          resolve(
+            new PaginationResponseModel<PlayerModel>({
+              IsSuccess: true,
+              Items: data.data?.map(
+                (x: any) =>
+                  new PlayerModel({
+                    Id: x.id,
+                    Name: x.name,
+                    AvatarUrl: x.avatarUrl,
+                    Age: calculateAge(new Date(x.birthday)),
+                    Height: x.height,
+                    Number: x.number,
+                    Position: x.position,
+                    TeamId: x.team,
+                    Weight: x.weight,
+                    Birthday: new Date(x.birthday),
+                  })
+              ),
+              Count: data.count,
+            })
+          )
+        )
+        .catch(() => resolve(new PaginationResponseModel<PlayerModel>()));
     });
+
+  /**
+   * * Получить детальную информацию команды
+   * @param teamId Идентификатор команды
+   */
+  const getPlayerDetails = async (playerId: number) => {
+    await api
+      .get("/api/Player/Get", {
+        params: {
+          id: playerId,
+        },
+      })
+      .then(({ data }) => {
+        {
+          playerDetails.value = new PlayerDetailsModel({
+            Id: data.id,
+            Name: data.name,
+            AvatarUrl: data.avatarUrl,
+            Age: calculateAge(new Date(data.birthday)),
+            Height: data.height,
+            Number: data.number,
+            Position: data.position,
+            Team: data.teamName,
+            TeamId: data.team,
+            Weight: data.weight,
+            Birthday: new Date(data.birthday),
+          });
+        }
+      })
+      .catch(() => new PaginationResponseModel<PlayerDetailsModel>());
+  };
+
+  /**
+   * * Добавить / обновить игрока
+   * @returns Статус добавления / обновления
+   */
+  const updatePlayer = async () =>
+    new Promise<ResponseModel<boolean>>(async (resolve) => {
+      if (isBase64(playerDetails.value.AvatarUrl)) {
+        await upload(playerDetails.value.Avatar).then((response) => {
+          if (response.IsSuccess) {
+            playerDetails.value.AvatarUrl = response.Value;
+          }
+        });
+      }
+
+      if (playerDetails.value.Id) {
+        await api
+          .put("/api/Player/Update", {
+            id: playerDetails.value.Id,
+            name: playerDetails.value.Name,
+            number: playerDetails.value.Number,
+            position: playerDetails.value.Position,
+            team: playerDetails.value.TeamId,
+            birthday: playerDetails.value.Birthday,
+            height: playerDetails.value.Height,
+            weight: playerDetails.value.Weight,
+            avatarUrl: playerDetails.value.AvatarUrl,
+          })
+          .then(() => {
+            playerDetails.value = new PlayerDetailsModel();
+            return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+          })
+          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+      } else {
+        await api
+          .post("/api/Player/Add", {
+            name: playerDetails.value.Name,
+            number: playerDetails.value.Number,
+            position: playerDetails.value.Position,
+            team: playerDetails.value.TeamId,
+            birthday: playerDetails.value.Birthday,
+            height: playerDetails.value.Height,
+            weight: playerDetails.value.Weight,
+            avatarUrl: playerDetails.value.AvatarUrl,
+          })
+          .then(() => {
+            playerDetails.value = new PlayerDetailsModel();
+            return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+          })
+          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+      }
+    });
+
+  /**
+   * * Удалить игрока
+   * @param teamId Идентификатор игрока
+   * @returns Статус удаления
+   */
+  const deletePlayer = async (playerId: number) =>
+    new Promise<ResponseModel<boolean>>(async (resolve) => {
+      await api
+        .delete("/api/Player/Delete", {
+          params: {
+            id: playerId,
+          },
+        })
+        .then(() => {
+          playerDetails.value = new PlayerDetailsModel();
+          return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
+        })
+        .catch(() => resolve(new ResponseModel<boolean>({ IsSuccess: false })));
+    });
+
+  /**
+   * * Получить список игроков команды
+   * @param teamId Идентификатор команды
+   */
+  const getTeamPlayers = async (teamId: number) => {
+    await getPlayers(
+      new PlayerFilterModel({
+        TeamIds: [teamId],
+      })
+    ).then((response) => {
+      teamPleyars.value = new Array<PlayerDetailsModel>();
+      if (response.IsSuccess) {
+        teamPleyars.value = response.Items;
+      }
+    });
+  };
 
   /**
    * * Получить список позиций
    */
   const getPositions = async () => {
-    positions.value = new Array<PositionModel>();
-    positions.value = [
-      new PositionModel({
-        Id: "Вратарь",
-        Name: "Вратарь",
-      }),
-      new PositionModel({
-        Id: "Вратарь 2",
-        Name: "Вратарь 2",
-      }),
-    ];
+    await api
+      .get("/api/Player/GetPositions")
+      .then(({ data }) => {
+        {
+          positions.value = data?.map(
+            (x: string) =>
+              new PositionModel({
+                Id: x,
+                Name: x,
+              })
+          );
+        }
+      })
+      .catch(() => new PaginationResponseModel<PlayerDetailsModel>());
+  };
+
+  /**
+   * * Расчитать возраст
+   * @param birthDate Дата рождения
+   * @returns Возраст
+   */
+  const calculateAge = (birthDate: Date) => {
+    const currentDate = new Date();
+    const dob = new Date(birthDate);
+
+    let age = currentDate.getFullYear() - dob.getFullYear();
+
+    const currentMonth = currentDate.getMonth();
+    const dobMonth = dob.getMonth();
+
+    if (
+      currentMonth < dobMonth ||
+      (currentMonth === dobMonth && currentDate.getDate() < dob.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
   return {
     /**

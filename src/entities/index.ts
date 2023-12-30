@@ -6,3 +6,4 @@ export * from "./player";
 export * from "./common";
 export * from "./user";
 export * from "./notification";
+export * from "./multimedia";

@@ -212,7 +212,7 @@ const selectedWrapper = ref();
       </VueMultiselect>
     </div>
 
-    <ErrorText>{{ error }}</ErrorText>
+    <ErrorText v-if="error">{{ error }}</ErrorText>
   </div>
 </template>
 

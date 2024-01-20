@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 import { ErrorText } from "@/shared";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -16,6 +16,18 @@ const props = defineProps({
    */
   label: {
     type: String,
+  },
+  /**
+   * * Минимальная дата
+   */
+  minDate: {
+    type: Object as PropType<Number | Date>,
+  },
+  /**
+   * * Максимальная дата
+   */
+  maxDate: {
+    type: Object as PropType<Number | Date>,
   },
   /**
    * * Ошибка
@@ -53,9 +65,11 @@ const value = computed({
       v-model="value"
       :enable-time-picker="false"
       :clearable="false"
+      :min-date="minDate"
+      :max-date="maxDate"
       auto-apply
     />
-    <ErrorText>{{ error }}</ErrorText>
+    <ErrorText v-if="error">{{ error }}</ErrorText>
   </div>
 </template>
 

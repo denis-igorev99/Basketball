@@ -10,9 +10,12 @@ export class BreadCrumbsModel {
    * * Маршрут
    */
   Route?: string;
+  /**
+   * * Параметры
+   */
+  QueryParams?: Object;
 
   constructor(player?: Partial<BreadCrumbsModel>) {
     if (player) Object.assign(this, player);
   }
 }
-

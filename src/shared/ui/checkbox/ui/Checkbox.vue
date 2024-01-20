@@ -34,7 +34,7 @@ const value = computed({
       <input v-model="value" type="checkbox" :disabled="disabled" />
       <slot />
     </label>
-    <ErrorText>{{ error }}</ErrorText>
+    <ErrorText v-if="error">{{ error }}</ErrorText>
   </div>
 </template>
 

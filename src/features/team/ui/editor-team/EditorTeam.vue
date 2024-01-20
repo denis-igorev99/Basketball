@@ -7,6 +7,9 @@ import {
   useFormValidator,
   useLoading,
   UploadAvatar,
+  checkYear,
+  checkNoMoreCurrentYear,
+  useNotificationStore,
 } from "@/shared";
 import { computed, onMounted, PropType } from "vue";
 import PhotoImg from "@/shared/assets/img/photo.svg";
@@ -22,6 +25,11 @@ const props = defineProps({
     type: Number,
   },
 });
+
+/**
+ * * Стор для работы с уведомлениями
+ */
+const { success, error } = useNotificationStore();
 
 /**
  * * Стор для работы с командой
@@ -41,11 +49,17 @@ const breadCumbs = computed(() => [
   new BreadCrumbsModel({
     Text: "Teams",
     Route: "teams-list",
+    QueryParams: { page: 1 },
   }),
   new BreadCrumbsModel({
     Text: teamDetails.value.Id ? "Update team" : "Add new team",
   }),
 ]);
+
+/**
+ * * Текущий год
+ */
+const currentYear = computed(() => new Date().getFullYear());
 
 /**
  * * Сохранить
@@ -56,10 +70,19 @@ const onSave = async () => {
   stopValidate();
   startLoading();
 
+  let isEdit = !!teamDetails.value.Id;
+
   await updateTeam()
     .then((response) => {
       if (response.IsSuccess) {
+        success(
+          isEdit
+            ? "Team has been updated successfully."
+            : "Team has been created successfully."
+        );
         router.push({ name: "teams-list" });
+      } else {
+        error(response.ErrorMessage);
       }
     })
     .finally(() => stopLoading());
@@ -80,7 +103,11 @@ const onCancel = async () => {
 
 onMounted(async () => {
   teamDetails.value = new TeamDetailsModel();
-  if (props.teamId) await getTeamDetails(props.teamId);
+  if (props.teamId) {
+    await getTeamDetails(props.teamId);
+
+    if (!teamDetails.value.Id) router.push({ name: "teams-list" });
+  }
 });
 
 /**
@@ -99,7 +126,13 @@ const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
       NameError: [required("Please enter your name")],
       DivisionError: [required("Please enter division")],
       ConferenceError: [required("Please enter conference")],
-      FoundationYearError: [required("Please enter foundation year")],
+      FoundationYearError: [
+        required("Please enter foundation year"),
+        checkYear(),
+        checkNoMoreCurrentYear(
+          "The year of foundation cannot be greater than the current year"
+        ),
+      ],
       ImageUrlError: [required("Please upload image")],
     }
   );
@@ -140,7 +173,7 @@ const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
       :error="errors?.FoundationYearError"
       type="number"
       :min="0"
-      :max="150"
+      :max="currentYear"
     />
   </EditorBlock>
 </template>

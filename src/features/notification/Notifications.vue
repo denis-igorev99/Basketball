@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useNotificationStore } from "@/entities";
+import { useNotificationStore } from "@/shared";
 import { storeToRefs } from "pinia";
 
 /**

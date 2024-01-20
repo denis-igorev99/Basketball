@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { BreadCrumbsModel, DetailsBlock, InfoDetails } from "@/shared";
+import {
+  BreadCrumbsModel,
+  DetailsBlock,
+  InfoDetails,
+  useNotificationStore,
+} from "@/shared";
 import { useTeamStore } from "@/entities";
 import { PlayerTable } from "@/features";
 import { storeToRefs } from "pinia";
@@ -23,12 +28,18 @@ const { teamDetails } = storeToRefs(useTeamStore());
 const { getTeamDetails, deleteTeam } = useTeamStore();
 
 /**
+ * * Стор для работы с уведомлениями
+ */
+const { success, error } = useNotificationStore();
+
+/**
  * * Хлебные крошки
  */
 const breadCumbs = computed(() => [
   new BreadCrumbsModel({
     Text: "Teams",
     Route: "teams-list",
+    QueryParams: { page: 1 },
   }),
   new BreadCrumbsModel({
     Text: teamDetails.value.Name,
@@ -53,15 +64,19 @@ const onEdit = () => {
 const onDelete = async () => {
   await deleteTeam(teamDetails.value.Id).then((response) => {
     if (!response.IsSuccess) {
-      // todo error
+      error(response.ErrorMessage);
       return;
     }
+
+    success(`Team has been deleted successfully.`);
     router.push({ name: "teams-list" });
   });
 };
 
 onMounted(async () => {
   await getTeamDetails(props.teamId);
+
+  if (!teamDetails.value.Id) router.push({ name: "teams-list" });
 });
 </script>
 

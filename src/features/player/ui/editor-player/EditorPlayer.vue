@@ -8,6 +8,7 @@ import {
   useLoading,
   UploadAvatar,
   DatePicker,
+  useNotificationStore,
 } from "@/shared";
 import { computed, onMounted, PropType } from "vue";
 import PhotoImg from "@/shared/assets/img/photo.svg";
@@ -24,6 +25,11 @@ const props = defineProps({
     type: Number,
   },
 });
+
+/**
+ * * Стор для работы с уведомлениями
+ */
+const { success, error } = useNotificationStore();
 
 /**
  * * Стор для работы с игроками
@@ -43,11 +49,17 @@ const breadCumbs = computed(() => [
   new BreadCrumbsModel({
     Text: "Players",
     Route: "players-list",
+    QueryParams: { page: 1 },
   }),
   new BreadCrumbsModel({
     Text: playerDetails.value.Id ? "Update player" : "Add new player",
   }),
 ]);
+
+/**
+ * * Текущая дата
+ */
+const currentDate = computed(() => new Date());
 
 /**
  * * Сохранить
@@ -58,10 +70,19 @@ const onSave = async () => {
   stopValidate();
   startLoading();
 
+  let isEdit = !!playerDetails.value.Id;
+
   await updatePlayer()
     .then((response) => {
       if (response.IsSuccess) {
+        success(
+          isEdit
+            ? "Player has been updated successfully."
+            : "Player has been created successfully."
+        );
         router.push({ name: "players-list" });
+      } else {
+        error(response.ErrorMessage);
       }
     })
     .finally(() => stopLoading());
@@ -82,7 +103,12 @@ const onCancel = async () => {
 
 onMounted(async () => {
   playerDetails.value = new PlayerDetailsModel();
-  if (props.playerId) await getPlayerDetails(props.playerId);
+  if (props.playerId) {
+    await getPlayerDetails(props.playerId);
+
+    if (!playerDetails.value.Id)
+      router.push({ name: "players-list" });
+  }
 });
 
 /**
@@ -163,6 +189,7 @@ const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
       <DatePicker
         v-model="playerDetails.Birthday"
         label="Birthday"
+        :max-date="currentDate"
         :error="errors?.BirthdayError"
       />
       <Input

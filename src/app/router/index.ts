@@ -49,7 +49,12 @@ const routes: Array<RouteRecordRaw> = [
             name: "teams-list",
             path: "list",
             component: TeamsPage,
-            meta: { title: "Teams" },
+            meta: {
+              title: "Teams",
+              defaultQuery: {
+                page: 1,
+              },
+            },
           },
           {
             name: "team-details",
@@ -74,7 +79,12 @@ const routes: Array<RouteRecordRaw> = [
             name: "players-list",
             path: "list",
             component: PlayersPage,
-            meta: { title: "Players" },
+            meta: {
+              title: "Players",
+              defaultQuery: {
+                page: 1,
+              },
+            },
           },
           {
             name: "player-details",
@@ -137,7 +147,14 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
 
-  next();
+  const page = (to.meta?.defaultQuery as any)?.page;
+  
+  if (page && !to.query?.page) {
+    const query = { ...to.query, page }
+    next({ ...to, query })
+  } else {
+    next()
+  }
 });
 
 export { routes };

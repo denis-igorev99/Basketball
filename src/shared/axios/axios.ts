@@ -1,5 +1,7 @@
 import axios from "axios";
-import { UserModel, useNotificationStore } from "@/entities";
+import { UserModel } from "@/entities";
+import { useNotificationStore } from "../notification";
+import { errorDictionary } from "./error-dictionary";
 
 /**
  * * API url
@@ -11,6 +13,12 @@ export const apiUrl = "http://dev.trainee.dex-it.ru";
  */
 export const api = axios.create({
   baseURL: apiUrl,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    options: {
+      "Access-Control-Allow-Origin": "*",
+    },
+  },
 });
 
 /**
@@ -39,14 +47,19 @@ api.interceptors.response.use(
     return response;
   },
   (e) => {
-    let errorMessage = e.response?.data?.title ?? e.response?.data ?? e.message;
-    if (errorMessage) {
+    if (!e.response?.status) {
       localStorage.removeItem("user");
       location.href = "/";
-      const { error } = useNotificationStore();
-      error(errorMessage);
+      return;
     }
-    return Promise.reject(e);
+
+    let errorMessage =
+      errorDictionary.find((x) => x.key == e.response?.status)?.value ??
+      e.response?.data?.title ??
+      e.response?.data ??
+      e.message;
+
+    return Promise.reject(errorMessage);
   }
 );
 
@@ -65,7 +78,20 @@ noAuthApi.interceptors.response.use(
     return response;
   },
   (e) => {
-    let errorMessage = e.response?.statusText ?? e.message;    
+    let code = e.response?.status;
+    let errorMessage;
+
+    switch (code) {
+      case 401:
+        errorMessage = "Incorrect name or password. Please try again.";
+        break;
+      case 409:
+        errorMessage = "An account with such data already exists.";
+        break;
+    }
+
+    if (!errorMessage) errorMessage = e.response?.statusText ?? e.message;
+
     if (errorMessage) {
       const { error } = useNotificationStore();
       error(errorMessage);

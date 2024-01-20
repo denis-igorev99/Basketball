@@ -6,6 +6,7 @@ import { ILinkProps } from "@/shared/ui/link/interface";
 
 const props = withDefaults(defineProps<ILinkProps>(), {
   disabled: false,
+  isUnderline: true,
 });
 
 /**
@@ -20,7 +21,8 @@ const checkClick = (e: Event) => {
   <RouterLink
     v-if="routerName"
     class="ui-link"
-    :to="{ name: routerName }"
+    :class="{ 'ui-link__underlined': isUnderline }"
+    :to="{ name: routerName, query: querParams }"
     v-bind="$attrs"
     @click="checkClick"
   >
@@ -32,8 +34,13 @@ const checkClick = (e: Event) => {
 <style lang="scss" scoped>
 .ui-link {
   color: $red;
-  text-decoration: underline;
   cursor: pointer;
+  text-decoration: none;
+
+  &__underlined {
+    text-decoration: underline;
+  }
+
   &:not(.disabled):hover {
     text-decoration: none;
   }

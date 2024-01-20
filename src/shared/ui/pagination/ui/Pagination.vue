@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { IPaginationProps } from "@/shared/ui/pagination/interface";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const props = withDefaults(defineProps<IPaginationProps>(), {
   size: 10,
@@ -16,6 +17,12 @@ const emit = defineEmits<{
 }>();
 
 /**
+ * * Настройка маршрута
+ */
+const route = useRoute();
+const router = useRouter();
+
+/**
  * * Значение
  */
 const value = computed({
@@ -24,6 +31,8 @@ const value = computed({
     emit("update:page", value);
   },
 });
+
+onMounted(() => {});
 </script>
 
 <template>

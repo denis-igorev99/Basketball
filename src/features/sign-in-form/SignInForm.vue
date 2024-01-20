@@ -76,12 +76,14 @@ const { startValidate, stopValidate, errors, isDisabledSubmit, isValidate } =
       v-model="modelValue.Login"
       inputLabel="Name"
       :error="errors?.LoginError"
+      @on-enter="clickSubmit"
     />
     <Input
       v-model="modelValue.Password"
       inputLabel="Password"
       type="password"
       :error="errors?.PasswordError"
+      @on-enter="clickSubmit"
     />
     <Button :disabled="isLoading" @click="clickSubmit">Sign In</Button>
     <div class="info">

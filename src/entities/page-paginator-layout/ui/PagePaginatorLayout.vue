@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {
   computed,
+  inject,
   onMounted,
   onUnmounted,
   PropType,
@@ -12,7 +13,7 @@ import { PaginationDataModel, PaginationFilterModel } from "../models";
 import { Button, Search, Pagination, SelectItemModel } from "@/shared";
 import { PaginationSizeSelect, usePaginationList } from "@/entities";
 import PlusIcon from "@/shared/assets/img/icons/plus.svg";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const props = defineProps({
   /**
    * * Данные для управления получением учеников
@@ -70,6 +71,7 @@ const hasSlot = (name: string) => {
  * * Маршруты
  */
 const router = useRouter();
+const route = useRoute();
 
 /**
  * * Фильтр
@@ -89,11 +91,24 @@ const showCount = computed(() => (width.value < 1024 ? 3 : 4));
 /**
  * * Управление листом пагинации
  */
-const { items, count, paginationFilter, updateList, updateFilter } =
-  usePaginationList({
-    PaginationData: props.paginator,
-    FilterData: innerFilter.value,
-  });
+const {
+  items,
+  count,
+  paginationFilter,
+  invalidPagination,
+  updateList,
+  updateFilter,
+} = usePaginationList({
+  PaginationData: props.paginator,
+  FilterData: innerFilter.value,
+});
+
+watch(
+  () => invalidPagination.value,
+  (value: boolean) => {
+    setValue("CurrentPage", 1);
+  }
+);
 
 /**
  * * Обновить ширину экрана
@@ -115,6 +130,11 @@ const setValue = (key: keyof PaginationFilterModel, value: any) => {
   });
 
   emit("update:filter", _filter);
+
+  let page = Number(route.query.page) ?? 1;
+  
+  if (page != _filter.CurrentPage)
+    router.push({ name: route.name, query: { page: _filter.CurrentPage } });
 };
 
 /**
@@ -131,8 +151,26 @@ const goToCreate = () => {
   if (props.createRouteName) router.push({ name: props.createRouteName });
 };
 
+/**
+ * * Проверка, есть ли страница
+ */
+const checkPage = () => {
+  let page = 1;
+  if (route.query?.page) {
+    if (!Number(route.query.page) || Number(route.query.page) < 1) {
+      router.push({ name: route.name, query: { page: page } });
+      return;
+    }
+
+    page = Number(route.query.page);
+
+    if (page != innerFilter.value.CurrentPage) setValue("CurrentPage", page);
+  }
+};
+
 onMounted(() => {
   window.addEventListener("resize", updateWidth);
+  checkPage();
 });
 
 onUnmounted(() => {
@@ -166,7 +204,7 @@ onUnmounted(() => {
       </div>
       <slot v-else name="empty-search" />
     </div>
-    <div class="page-pagination">
+    <div class="page-pagination" v-if="paginator?.Count">
       <Pagination
         :page="filter.CurrentPage"
         :size="filter.Size"

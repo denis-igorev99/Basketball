@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { computed, InputHTMLAttributes, onMounted, ref, useAttrs, useSlots } from "vue";
+import {
+  computed,
+  InputHTMLAttributes,
+  onMounted,
+  ref,
+  useAttrs,
+  useSlots,
+} from "vue";
 import { IInputProps } from "@/shared/ui/input/interface";
 import { ErrorText } from "@/shared";
 import Eye from "@/shared/assets/img/icons/eye.svg";
@@ -15,6 +22,10 @@ const emit = defineEmits<{
    * * Обновление значения
    */
   (e: "update:modelValue", value: any): void;
+  /**
+   * * Событие нажатия на клавишу Enter
+   */
+  (e: "on-enter"): void;
 }>();
 
 /**
@@ -56,6 +67,13 @@ const innerType = ref<string>(attrs.type as string);
 const changedViewPassword = () => {
   innerType.value = innerType.value == "password" ? "text" : "password";
 };
+
+/**
+ * * Событие нажатия на клавишу Enter
+ */
+const onEnter = () => {
+  emit("on-enter");
+};
 </script>
 
 <template>
@@ -63,23 +81,26 @@ const changedViewPassword = () => {
     <div class="title" v-if="inputLabel">
       {{ inputLabel }}
     </div>
-    <input
-      class="ui-input"
-      :class="{ password: isPassword }"
-      v-model="value"
-      v-bind="$attrs"
-      :type="innerType"
-    />
-    <img
-      v-if="isPassword"
-      class="password-eye"
-      :src="innerType == 'password' ? CloseEye : Eye"
-      alt="Password"
-      width="16"
-      height="16"
-      @click="changedViewPassword"
-    />
-    <ErrorText>{{ error }}</ErrorText>
+    <div class="content">
+      <input
+        class="ui-input"
+        :class="{ password: isPassword }"
+        v-model="value"
+        v-bind="$attrs"
+        :type="innerType"
+        @keyup.enter="onEnter"
+      />
+      <img
+        v-if="isPassword"
+        class="password-eye"
+        :src="innerType == 'password' ? CloseEye : Eye"
+        alt="Password"
+        width="16"
+        height="16"
+        @click="changedViewPassword"
+      />
+    </div>
+    <ErrorText v-if="error">{{ error }}</ErrorText>
   </div>
 </template>
 
@@ -97,46 +118,51 @@ const changedViewPassword = () => {
     margin-bottom: 8px;
   }
 
-  .password-eye {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-  }
-
-  .ui-input {
-    padding: 7px 12px;
-    border-radius: 4px;
-    width: 100%;
-    background: $superlight-gray;
-    border: 1px solid $superlight-gray;
-    outline: none;
-    color: $dark-gray;
-    min-height: 40px;
-    transition: all 0.15s ease-in;
-    font-family: inherit;
-
-    &:hover {
-      background: $lightest-gray;
-      border-color: $lightest-gray;
+  .content {
+    position: relative;
+    .password-eye {
+      position: absolute;
+      right: 16px;
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
     }
 
-    &:focus {
+    .ui-input {
+      padding: 7px 12px;
+      border-radius: 4px;
+      width: 100%;
       background: $superlight-gray;
-      border-color: $superlight-gray;
-      box-shadow: 0px 0px 5px 0px #d9d9d9;
-    }
+      border: 1px solid $superlight-gray;
+      outline: none;
+      color: $dark-gray;
+      min-height: 40px;
+      transition: all 0.15s ease-in;
+      font-family: inherit;
 
-    &:disabled {
-      color: $lightest-gray;
-    }
+      &:hover {
+        background: $lightest-gray;
+        border-color: $lightest-gray;
+      }
 
-    &::placeholder {
-      color: $gray;
-      font-size: 14px;
-    }
+      &:focus {
+        background: $superlight-gray;
+        border-color: $superlight-gray;
+        box-shadow: 0px 0px 5px 0px #d9d9d9;
+      }
 
-    &.password {
-      padding-right: 40px;
+      &:disabled {
+        color: $lightest-gray;
+      }
+
+      &::placeholder {
+        color: $gray;
+        font-size: 14px;
+      }
+
+      &.password {
+        padding-right: 40px;
+      }
     }
   }
 

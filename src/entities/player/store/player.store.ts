@@ -10,7 +10,6 @@ import {
   ResponseModel,
   useMultimediaStore,
 } from "@/entities";
-import Img from "@/shared/assets/img/user.png";
 import { ref } from "vue";
 import { api } from "@/shared";
 
@@ -46,44 +45,52 @@ export const usePlayerStore = defineStore("player-store", () => {
    * @returns Список игроков
    */
   const getPlayers = async (filter: PlayerFilterModel) =>
-    new Promise<PaginationResponseModel<PlayerModel>>(async (resolve) => {
-      await api
-        .get("/api/Player/GetPlayers", {
-          params: {
-            name: filter.Search,
-            teamIds: filter.TeamIds,
-            page: filter.CurrentPage,
-            pageSize: filter.Size,
-          },
-          paramsSerializer: {
-            indexes: true,
-          },
-        })
-        .then(({ data }) =>
-          resolve(
-            new PaginationResponseModel<PlayerModel>({
-              IsSuccess: true,
-              Items: data.data?.map(
-                (x: any) =>
-                  new PlayerModel({
-                    Id: x.id,
-                    Name: x.name,
-                    AvatarUrl: x.avatarUrl,
-                    Age: calculateAge(new Date(x.birthday)),
-                    Height: x.height,
-                    Number: x.number,
-                    Position: x.position,
-                    TeamId: x.team,
-                    Weight: x.weight,
-                    Birthday: new Date(x.birthday),
-                  })
-              ),
-              Count: data.count,
-            })
+    new Promise<PaginationResponseModel<PlayerModel>>(
+      async (resolve, reject) => {
+        await api
+          .get("/api/Player/GetPlayers", {
+            params: {
+              name: filter.Search,
+              teamIds: filter.TeamIds,
+              page: filter.CurrentPage,
+              pageSize: filter.Size,
+            },
+            paramsSerializer: {
+              indexes: true,
+            },
+          })
+          .then(({ data }) =>
+            resolve(
+              new PaginationResponseModel<PlayerModel>({
+                IsSuccess: true,
+                Items: data.data?.map(
+                  (x: any) =>
+                    new PlayerModel({
+                      Id: x.id,
+                      Name: x.name,
+                      AvatarUrl: x.avatarUrl,
+                      Age: calculateAge(new Date(x.birthday)),
+                      Height: x.height,
+                      Number: x.number,
+                      Position: x.position,
+                      TeamId: x.team,
+                      Weight: x.weight,
+                      Birthday: new Date(x.birthday),
+                    })
+                ),
+                Count: data.count,
+              })
+            )
           )
-        )
-        .catch(() => resolve(new PaginationResponseModel<PlayerModel>()));
-    });
+          .catch(() =>
+            reject(
+              new PaginationResponseModel<PlayerModel>({
+                IsSuccess: false,
+              })
+            )
+          );
+      }
+    );
 
   /**
    * * Получить детальную информацию команды
@@ -123,11 +130,18 @@ export const usePlayerStore = defineStore("player-store", () => {
   const updatePlayer = async () =>
     new Promise<ResponseModel<boolean>>(async (resolve) => {
       if (isBase64(playerDetails.value.AvatarUrl)) {
-        await upload(playerDetails.value.Avatar).then((response) => {
-          if (response.IsSuccess) {
-            playerDetails.value.AvatarUrl = response.Value;
-          }
-        });
+        let response = await upload(playerDetails.value.Avatar);
+
+        if (!response.IsSuccess) {
+          return resolve(
+            new ResponseModel<boolean>({
+              IsSuccess: false,
+              ErrorMessage: "Failed to load image. Please try again later.",
+            })
+          );
+        }
+
+        playerDetails.value.AvatarUrl = response.Value;
       }
 
       if (playerDetails.value.Id) {
@@ -147,7 +161,14 @@ export const usePlayerStore = defineStore("player-store", () => {
             playerDetails.value = new PlayerDetailsModel();
             return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
           })
-          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+          .catch((error) =>
+            resolve(
+              new ResponseModel<boolean>({
+                IsSuccess: false,
+                ErrorMessage: error,
+              })
+            )
+          );
       } else {
         await api
           .post("/api/Player/Add", {
@@ -164,7 +185,14 @@ export const usePlayerStore = defineStore("player-store", () => {
             playerDetails.value = new PlayerDetailsModel();
             return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
           })
-          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+          .catch((error) => {
+            return resolve(
+              new ResponseModel<boolean>({
+                IsSuccess: false,
+                ErrorMessage: error,
+              })
+            );
+          });
       }
     });
 
@@ -185,7 +213,14 @@ export const usePlayerStore = defineStore("player-store", () => {
           playerDetails.value = new PlayerDetailsModel();
           return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
         })
-        .catch(() => resolve(new ResponseModel<boolean>({ IsSuccess: false })));
+        .catch(() => {
+          return resolve(
+            new ResponseModel<boolean>({
+              IsSuccess: false,
+              ErrorMessage: "Failed to delete player. Please try again later.",
+            })
+          );
+        });
     });
 
   /**

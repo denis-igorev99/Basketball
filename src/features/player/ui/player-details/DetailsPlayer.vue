@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { BreadCrumbsModel, DetailsBlock, InfoDetails } from "@/shared";
+import {
+  BreadCrumbsModel,
+  DetailsBlock,
+  InfoDetails,
+  useNotificationStore,
+} from "@/shared";
 import { usePlayerStore } from "@/entities";
 import { storeToRefs } from "pinia";
 import { computed, onMounted } from "vue";
@@ -16,6 +21,11 @@ const props = defineProps({
 });
 
 /**
+ * * Стор для работы с уведомлениями
+ */
+const { success, error } = useNotificationStore();
+
+/**
  * * Стор для работы с игроками
  */
 const { playerDetails } = storeToRefs(usePlayerStore());
@@ -28,6 +38,7 @@ const breadCumbs = computed(() => [
   new BreadCrumbsModel({
     Text: "Players",
     Route: "players-list",
+    QueryParams: { page: 1 },
   }),
   new BreadCrumbsModel({
     Text: playerDetails.value.Name,
@@ -54,14 +65,21 @@ const onEdit = () => {
  */
 const onDelete = async () => {
   await deletePlayer(playerDetails.value.Id).then((response) => {
-    if (response) {
-      router.push({ name: "players-list" });
+    if (!response.IsSuccess) {
+      error(response.ErrorMessage);
+      return;
     }
+
+    success(`Player has been deleted successfully.`);
+    router.push({ name: "players-list" });
   });
 };
 
 onMounted(async () => {
   await getPlayerDetails(props.playerId);
+
+  if (!playerDetails.value.Id)
+    router.push({ name: "players-list" });
 });
 </script>
 

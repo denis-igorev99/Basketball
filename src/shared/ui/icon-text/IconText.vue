@@ -82,6 +82,7 @@ const onClick = async () => {
     <slot />
     <div class="text">{{ text }}</div>
   </div>
+
 </template>
 
 <style lang="scss">

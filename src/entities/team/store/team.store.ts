@@ -34,7 +34,7 @@ export const useTeamStore = defineStore("team-store", () => {
    * @returns Список команд
    */
   const getTeams = async (filter: PaginationFilterModel) =>
-    new Promise<PaginationResponseModel<TeamModel>>(async (resolve) => {
+    new Promise<PaginationResponseModel<TeamModel>>(async (resolve, reject) => {
       await api
         .get("/api/Team/GetTeams", {
           params: {
@@ -62,7 +62,7 @@ export const useTeamStore = defineStore("team-store", () => {
             })
           )
         )
-        .catch(() => resolve(new PaginationResponseModel<TeamModel>()));
+        .catch(() => reject(new PaginationResponseModel<TeamModel>()));
     });
 
   /**
@@ -98,11 +98,18 @@ export const useTeamStore = defineStore("team-store", () => {
   const updateTeam = async () =>
     new Promise<ResponseModel<boolean>>(async (resolve) => {
       if (isBase64(teamDetails.value.ImageUrl)) {
-        await upload(teamDetails.value.Image).then((response) => {
-          if (response.IsSuccess) {
-            teamDetails.value.ImageUrl = response.Value;
-          }
-        });
+        let response = await upload(teamDetails.value.Image);
+
+        if (!response.IsSuccess) {
+          return resolve(
+            new ResponseModel<boolean>({
+              IsSuccess: false,
+              ErrorMessage: "Failed to load image. Please try again later.",
+            })
+          );
+        }
+
+        teamDetails.value.ImageUrl = response.Value;
       }
 
       if (teamDetails.value.Id) {
@@ -120,7 +127,14 @@ export const useTeamStore = defineStore("team-store", () => {
             getTeamsForSelect();
             return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
           })
-          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+          .catch((error) => {
+            return resolve(
+              new ResponseModel<boolean>({
+                IsSuccess: false,
+                ErrorMessage: error,
+              })
+            );
+          });
       } else {
         await api
           .post("/api/Team/Add", {
@@ -135,7 +149,14 @@ export const useTeamStore = defineStore("team-store", () => {
             getTeamsForSelect();
             return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
           })
-          .catch(() => new ResponseModel<boolean>({ IsSuccess: false }));
+          .catch((error) => {
+            return resolve(
+              new ResponseModel<boolean>({
+                IsSuccess: false,
+                ErrorMessage: error,
+              })
+            );
+          });
       }
     });
 
@@ -154,11 +175,17 @@ export const useTeamStore = defineStore("team-store", () => {
         })
         .then(() => {
           teamDetails.value = new TeamDetailsModel();
-
-          teams.value = teams.value.filter(x=> x.Id != teamId);
+          teams.value = teams.value.filter((x) => x.Id != teamId);
           return resolve(new ResponseModel<boolean>({ IsSuccess: true }));
         })
-        .catch(() => resolve(new ResponseModel<boolean>({ IsSuccess: false })));
+        .catch(() => {
+          return resolve(
+            new ResponseModel<boolean>({
+              IsSuccess: false,
+              ErrorMessage: "Failed to delete team. Please try again later.",
+            })
+          );
+        });
     });
 
   /**

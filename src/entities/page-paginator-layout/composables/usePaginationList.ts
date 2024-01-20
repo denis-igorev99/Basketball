@@ -1,4 +1,4 @@
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, provide, ref } from "vue";
 import { PaginationDataModel, PaginationFilterModel } from "../models";
 
 /**
@@ -35,7 +35,7 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
   );
 
   /**
-   * * Кол-во элементов для отображения
+   * * Кол-во элементов для отобря
    */
   const count = computed(() => params.PaginationData.Count);
 
@@ -45,15 +45,29 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
   const items = computed(() => params.PaginationData.Items);
 
   /**
+   * Пагинация невалидна
+   */
+  const invalidPagination = ref<boolean>(false);
+
+  /**
    * * Обновить список
    */
   const updateList = async () => {
+    invalidPagination.value = false;
+
     try {
       let response = await params.PaginationData.Search(paginationFilter.value);
 
       if (response.IsSuccess) {
         params.PaginationData.Items = response.Items;
         params.PaginationData.Count = response.Count;
+
+        if (
+          response.Items.length == 0 &&
+          paginationFilter.value.CurrentPage > 1
+        ) {
+          invalidPagination.value = true;
+        }
       }
     } catch {}
   };
@@ -83,6 +97,10 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
      * * Фильтр
      */
     paginationFilter,
+    /**
+     * Пагинация невалидна
+     */
+    invalidPagination,
     /**
      * * Обновить список
      */

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PropType, ref } from "vue";
 import PhotoImg from "@/shared/assets/img/icons/photo.svg";
-import { ErrorText } from "@/shared";
+import { ErrorText, useNotificationStore } from "@/shared";
 
 const props = defineProps({
   /**
@@ -24,6 +24,13 @@ const props = defineProps({
     default: "image/jpeg, image/png",
   },
   /**
+   * * Максимальный размер файла (байты)
+   */
+  maxSize: {
+    type: Number,
+    default: 1048576,
+  },
+  /**
    * * Ошибка
    */
   error: {
@@ -43,6 +50,11 @@ const emit = defineEmits<{
 }>();
 
 /**
+ * * Стор для работы с уведомлениями
+ */
+const notificationStore = useNotificationStore();
+
+/**
  * * Ссылка на поле загрузки
  */
 const inputRef = ref();
@@ -55,23 +67,44 @@ const clickUpload = () => {
 };
 
 /**
+ * * Очистить инпут
+ */
+const clearInput = () => {
+  if (inputRef.value) inputRef.value.value = null;
+};
+
+/**
  * * Загрузка изображения
  */
 const uploadAvatar = (event: any) => {
-  const file = event.target.files[0];
+  const file = event.target.files[0] as File;
   const allowedTypes = props.accept.split(",").map((x) => x.trim()) as string[];
 
-  if (file && allowedTypes.includes(file.type)) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (e) => {
-      inputRef.value.value = null;
-      emit("update:modelValue", e.target.result as string);
-      emit("update:file", file);
-    };
-  } else {
-    alert(`Please upload the file in the following format: ${props.accept}`);
+  if (file && !allowedTypes.includes(file.type)) {
+    notificationStore.error(
+      `Please upload the file in the following format: ${props.accept}`
+    );
+    clearInput();
+    return;
   }
+
+  if (props.maxSize && file.size > props.maxSize) {
+    notificationStore.error(
+      `File ${file.name} is too big. Maximum allowed file size: ${
+        props.maxSize / (1024 * 1024)
+      }MB`
+    );
+    clearInput();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = (e) => {
+    clearInput();
+    emit("update:modelValue", e.target.result as string);
+    emit("update:file", file);
+  };
 };
 </script>
 
@@ -91,7 +124,7 @@ const uploadAvatar = (event: any) => {
         <img :src="PhotoImg" alt="Photo" />
       </div>
     </div>
-    <ErrorText>{{ error }}</ErrorText>
+    <ErrorText v-if="error">{{ error }}</ErrorText>
   </div>
 </template>
 

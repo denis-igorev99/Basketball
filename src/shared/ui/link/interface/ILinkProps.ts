@@ -11,13 +11,17 @@ export interface ILinkProps extends /* @vue-ignore */ LinkHTMLAttributes {
   /**
    * * Название роута
    */
-  routerName?:string;
-   /**
+  routerName?: string;
+  /**
+   * * Query параметры 
+   */
+  queryParams?: Object;
+  /**
    * * Параметры
    */
-   querParams?:string;
-   /**
-    * Добавить подчеркивание
-    */
-   isUnderline: boolean;
+  params?: Object;
+  /**
+   * Добавить подчеркивание
+   */
+  isUnderline: boolean;
 }

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
+import { Link } from "@/shared/ui/link";
 
 const props = defineProps({
   /**
@@ -29,29 +30,18 @@ const props = defineProps({
     type: String,
   },
 });
-
-/**
- * * Маршруты
- */
-const router = useRouter();
-
-/**
- * * Перейти на детальную страницу
- */
-const goToDetails = () => {
-  if (props.detailsRouterName)
-    router.push({
-      name: props.detailsRouterName,
-      params: { id: props.detailsId },
-    });
-};
 </script>
 
 <template>
-  <div class="info-card" @click="goToDetails">
+  <Link
+    :router-name="detailsRouterName"
+    :params="{ id: props.detailsId }"
+    :is-underline="false"
+    class="info-card"
+  >
     <div class="content">
       <div class="preview">
-        <img :src="imgUrl" alt="Avatar" />
+        <img v-if="imgUrl" :src="imgUrl" alt="Avatar" />
       </div>
     </div>
     <div class="footer">
@@ -60,7 +50,7 @@ const goToDetails = () => {
       </div>
       <div class="subtitle">{{ description }}</div>
     </div>
-  </div>
+  </Link>
 </template>
 
 <style lang="scss" scoped>

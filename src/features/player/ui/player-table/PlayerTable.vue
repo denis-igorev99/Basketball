@@ -2,6 +2,8 @@
 import { usePlayerStore } from "@/entities";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { Link } from "@/shared/ui/link";
+
 const props = defineProps({
   /**
    * * Идентификатор команды
@@ -36,16 +38,19 @@ onMounted(async () => {
           <div class="td">Age</div>
         </div>
 
-        <div class="tr" v-for="player in teamPleyars" :key="player.Id">
+        <Link
+          class="tr"
+          router-name="player-details"
+          :params="{ id: player.Id }"
+          :is-underline="false"
+          v-for="player in teamPleyars"
+          :key="player.Id"
+        >
           <div class="td">{{ player.Number }}</div>
           <div class="td">
             <div class="player-info">
               <div class="avatar">
-                <img
-                  width="40"
-                  :src="player.AvatarUrl"
-                  alt="Avatar"
-                />
+                <img width="40" :src="player.AvatarUrl" v-if="player.AvatarUrl" alt="Avatar" />
               </div>
               <div class="initials">
                 <div class="player-name">{{ player.Name }}</div>
@@ -56,7 +61,7 @@ onMounted(async () => {
           <div class="td">{{ player.Height }} cm</div>
           <div class="td">{{ player.Weight }} kg</div>
           <div class="td">{{ player.Age }}</div>
-        </div>
+        </Link>
       </div>
     </div>
   </div>
@@ -100,6 +105,7 @@ onMounted(async () => {
       justify-content: center;
       font-size: 15px;
       line-height: 24px;
+      color: $gray;
     }
 
     .tr {

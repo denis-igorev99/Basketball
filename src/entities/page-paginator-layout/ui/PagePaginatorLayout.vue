@@ -47,13 +47,23 @@ const emit = defineEmits<{
 watch(
   () => props.filter,
   () => {
-    if (JSON.stringify(props.filter) != JSON.stringify(paginationFilter)) {
+    if (JSON.stringify(props.filter) != JSON.stringify(paginationFilter.value)) {
       updateFilter(props.filter);
       updateList();
     }
   },
   { deep: true }
 );
+
+/**
+ * * Маршруты
+ */
+const router = useRouter();
+const route = useRoute();
+
+const queryPage = computed(() => {
+  return Number(route.query.page) ?? 1;
+});
 
 /**
  * * Настройка над слотом
@@ -68,15 +78,10 @@ const hasSlot = (name: string) => {
 };
 
 /**
- * * Маршруты
- */
-const router = useRouter();
-const route = useRoute();
-
-/**
  * * Фильтр
  */
-const innerFilter = ref<PaginationFilterModel>(props.filter);
+const innerFilter = ref<PaginationFilterModel>(new PaginationFilterModel());
+// console.log('innerFilter', innerFilter.value.CurrentPage);
 
 /**
  * * Ширина экрана
@@ -132,7 +137,7 @@ const setValue = (key: keyof PaginationFilterModel, value: any) => {
   emit("update:filter", _filter);
 
   let page = Number(route.query.page) ?? 1;
-  
+
   if (page != _filter.CurrentPage)
     router.push({ name: route.name, query: { page: _filter.CurrentPage } });
 };
@@ -159,18 +164,23 @@ const checkPage = () => {
   if (route.query?.page) {
     if (!Number(route.query.page) || Number(route.query.page) < 1) {
       router.push({ name: route.name, query: { page: page } });
+      updateList();
       return;
     }
 
     page = Number(route.query.page);
 
-    if (page != innerFilter.value.CurrentPage) setValue("CurrentPage", page);
+    if (page != innerFilter.value.CurrentPage) {
+      setValue("CurrentPage", page);
+    }
   }
 };
+checkPage();
 
 onMounted(() => {
   window.addEventListener("resize", updateWidth);
-  checkPage();
+
+  if (innerFilter.value.CurrentPage == queryPage.value) updateList();
 });
 
 onUnmounted(() => {

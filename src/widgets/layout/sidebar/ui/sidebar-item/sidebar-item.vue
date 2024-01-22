@@ -22,7 +22,7 @@ const props = defineProps({
 <template>
   <Link
     :router-name="routerName"
-    :quer-params="{ page: 1 }"
+    :query-params="{ page: 1 }"
     :is-underline="false"
   >
     <IconText :text="text" :router-name="routerName">

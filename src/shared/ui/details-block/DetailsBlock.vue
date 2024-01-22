@@ -49,7 +49,7 @@ const onDelete = () => {
     </div>
     <div class="content" :class="{ avatar: isAvatar }">
       <div class="preview">
-        <img :src="imageUrl" alt="Preview" />
+        <img :src="imageUrl" v-if="imageUrl" alt="Preview" />
       </div>
       <div class="info">
         <div class="title"><slot name="title" /></div>

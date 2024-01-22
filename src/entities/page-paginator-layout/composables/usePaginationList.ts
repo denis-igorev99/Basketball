@@ -81,7 +81,7 @@ export const usePaginationList = <PaginationFilterModel, TRes>(
   };
 
   onMounted(() => {
-    updateList();
+    // updateList();
   });
 
   return {

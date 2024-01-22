@@ -22,7 +22,7 @@ const checkClick = (e: Event) => {
     v-if="routerName"
     class="ui-link"
     :class="{ 'ui-link__underlined': isUnderline }"
-    :to="{ name: routerName, query: querParams }"
+    :to="{ name: routerName, params: params,  query: queryParams }"
     v-bind="$attrs"
     @click="checkClick"
   >
